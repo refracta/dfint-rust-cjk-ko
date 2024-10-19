@@ -1,7 +1,6 @@
-const CSV_FILES: &[&str] = &[
+const LOOKUP_CSV_FILES: &[&str] = &[
   "creatures.csv",
   "plants.csv",
-  "plants-growths.csv",
   "skills.csv",
   "professions.csv",
   "positions.csv",
@@ -19,11 +18,16 @@ const CSV_FILES: &[&str] = &[
   "ammos.csv",
   "meats.csv",
   "items.csv",
+  "pants.csv",
+  "siegeammos.csv",
+  "trapcomps.csv",
   "tasks.csv",
 ];
+const DICTIONARY_CSV_FILES: &[&str] = &["creatures.csv", "plants.csv"];
 const TOP_LOOKUPS: &[&str] = &[
-  "CREATURE",
-  "PLANT_GROWTH",
+  "CREATURE:NAME",
+  "PLANT:NAME",
+  "PLANT:GROWTH:NAME",
   "SKILL",
   "PROFESSION",
   "POSITION",
@@ -37,8 +41,12 @@ const TOP_LOOKUPS: &[&str] = &[
 pub static TOP: super::LookupTree = {
   let mut ret = super::LookupTree::default();
 
-  for &file in CSV_FILES {
-    ret.load_csv(file);
+  for &file in LOOKUP_CSV_FILES {
+    ret.load_lookup_csv(file);
+  }
+
+  for &file in DICTIONARY_CSV_FILES {
+    ret.load_dictionary_csv(file);
   }
 
   for &lookup in TOP_LOOKUPS {
