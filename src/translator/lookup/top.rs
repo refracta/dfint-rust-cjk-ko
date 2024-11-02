@@ -17,25 +17,15 @@ const LOOKUP_CSV_FILES: &[&str] = &[
   "gloves.csv",
   "ammos.csv",
   "meats.csv",
-  "items.csv",
   "pants.csv",
   "siegeammos.csv",
   "trapcomps.csv",
+  "items.csv",
+  "construction-menus.csv",
   "tasks.csv",
+  "index.csv",
 ];
 const DICTIONARY_CSV_FILES: &[&str] = &["creatures.csv", "plants.csv"];
-const TOP_LOOKUPS: &[&str] = &[
-  "CREATURE:NAME",
-  "PLANT:NAME",
-  "PLANT:GROWTH:NAME",
-  "SKILL",
-  "PROFESSION",
-  "POSITION",
-  "MATERIAL",
-  "INFO_TAG:FLOOR", // TODO: add other types of INFO_TAG
-  "ITEM",
-  "TASK",
-];
 
 #[static_init::dynamic]
 pub static TOP: super::LookupTree = {
@@ -47,10 +37,6 @@ pub static TOP: super::LookupTree = {
 
   for &file in DICTIONARY_CSV_FILES {
     ret.load_dictionary_csv(file);
-  }
-
-  for &lookup in TOP_LOOKUPS {
-    ret.enable(lookup);
   }
 
   // ret.dump_all("");

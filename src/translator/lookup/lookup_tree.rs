@@ -222,8 +222,4 @@ impl LookupTree {
       },
     );
   }
-
-  pub fn enable(&mut self, lookup: &str) {
-    self.insert("".to_owned(), format!("{{:{lookup}}}"), format!("{{:{lookup}}}"));
-  }
 }
