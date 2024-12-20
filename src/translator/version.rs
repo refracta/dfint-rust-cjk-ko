@@ -1,6 +1,4 @@
-use crate::{config, offsets};
-
-pub const VERSION: &str = "50.14";
+use crate::{config, offsets, version::VERSION};
 
 pub fn translate_version(vs_opt: Option<&str>, string: &str) -> Option<String> {
   if let Some(vs) = vs_opt {

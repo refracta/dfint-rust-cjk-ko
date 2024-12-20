@@ -2,6 +2,7 @@ use std::collections::HashMap;
 use std::hash::{DefaultHasher, Hash, Hasher};
 
 use crate::utils;
+use crate::version::VERSION;
 
 mod data;
 mod lookup;
@@ -45,7 +46,7 @@ impl Translator {
     if string.starts_with("FPS: ") {
       return (string, 0);
     }
-    if string != version::VERSION && string.chars().find(|ch| ch.is_alphabetic()).is_none() {
+    if string != VERSION && string.chars().find(|ch| ch.is_alphabetic()).is_none() {
       return (string, 0);
     }
 

@@ -1,4 +1,4 @@
-use crate::utils;
+use crate::{utils, version::VERSION};
 
 #[static_init::dynamic]
 pub static PLATFORM: String = {
@@ -48,7 +48,7 @@ pub static PLATFORM: String = {
     }
   }
 
-  let message = format!("不支持的版本！{}", err_details.join("，"));
+  let message = format!("不支持的版本（仅支持 {}）！{}", VERSION, err_details.join("，"));
   utils::show_error_dialog(&message);
   panic!("{}", message);
 };
