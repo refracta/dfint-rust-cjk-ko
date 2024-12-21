@@ -12,8 +12,8 @@
 
 仅兼容以下从官方渠道购买的豪华版 (Premium Edition, 或称之为付费版、图形版) 游戏本体：
 
-* Linux/Windows 系统 [**50.14** Steam 版](https://store.steampowered.com/app/975370/Dwarf_Fortress/)
-* Linux/Windows 系统 [**50.14** itch.io 版](https://kitfoxgames.itch.io/dwarf-fortress)
+* Linux/Windows 系统 [**50.15** Steam 版](https://store.steampowered.com/app/975370/Dwarf_Fortress/)
+* Linux/Windows 系统 [**50.15** itch.io 版](https://kitfoxgames.itch.io/dwarf-fortress)
 
 **注意事项：**
 
@@ -25,7 +25,7 @@
 ## 使用步骤
 
 1. 备份你的《矮人要塞》存档
-2. 确保你的《矮人要塞》处于受支持的 50.14 版本（对于 Steam 版，请确保测试分支选择为"无"）
+2. 确保你的《矮人要塞》处于受支持的 50.15 版本（对于 Steam 版，请确保测试分支选择为"无"）
 3. [从这里](https://gitee.com/vizv/dfint-rust-cjk/releases)下载最新的汉化程序完整包
 4. 解压压缩包内的所有文件和文件夹到游戏根目录
 5. 正常启动游戏
@@ -84,7 +84,7 @@
 * [x] 使用新的词典格式
   + [x] 翻译缓存
   + [x] 实现富文本翻译
-    - [x] 教程翻译（待更新到 50.14）
+    - [x] 教程翻译（待更新到 50.15）
     - [ ] 其他富文本
   + [x] 实现查询树和查询表来匹配和翻译文本
     - [x] 经验技能
@@ -103,6 +103,8 @@
   + [x] 实现基于上下文的界面翻译
     - [x] 加载页
     - [x] 主界面
+    - [x] 游戏菜单
+    - [x] 游戏中的时间（年月日和季节）
     - [ ] 其他界面
   + [ ] 基于网络的词典更新
 
