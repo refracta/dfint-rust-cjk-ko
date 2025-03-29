@@ -10,13 +10,6 @@ pub unsafe fn attach_all() -> Result<()> {
   attach_addst()?;
   attach_top_addst()?;
   attach_addst_flag()?;
-
-  #[cfg(target_os = "windows")]
-  {
-    attach_addchar()?;
-    attach_addchar_flag()?;
-  }
-
   attach_gps_allocate()?;
   attach_update_all()?;
   attach_update_tile()?;
@@ -33,13 +26,6 @@ pub unsafe fn enable_all() -> Result<()> {
   enable_addst()?;
   enable_top_addst()?;
   enable_addst_flag()?;
-
-  #[cfg(target_os = "windows")]
-  {
-    enable_addchar()?;
-    enable_addchar_flag()?;
-  }
-
   enable_gps_allocate()?;
   enable_update_all()?;
   enable_update_tile()?;
@@ -56,13 +42,6 @@ pub unsafe fn disable_all() -> Result<()> {
   disable_addst()?;
   disable_top_addst()?;
   disable_addst_flag()?;
-
-  #[cfg(target_os = "windows")]
-  {
-    disable_addchar()?;
-    disable_addchar_flag()?;
-  }
-
   disable_gps_allocate()?;
   disable_update_all()?;
   disable_update_tile()?;
@@ -75,8 +54,7 @@ pub unsafe fn disable_all() -> Result<()> {
   Ok(())
 }
 
-#[cfg_attr(target_os = "linux", hook)]
-#[cfg_attr(target_os = "windows", hook(bypass))]
+#[hook]
 fn addst(gps: usize, string_address: usize, just: u8, space: i32) {
   let bt = utils::backtrace();
   let string = encodings::read_raw_string(string_address);
@@ -89,8 +67,7 @@ fn addst(gps: usize, string_address: usize, just: u8, space: i32) {
   delete_cxxstring(dummy_ptr);
 }
 
-#[cfg_attr(target_os = "linux", hook)]
-#[cfg_attr(target_os = "windows", hook(bypass))]
+#[hook]
 fn addst_flag(gps: usize, string_address: usize, just: u8, space: i32, sflag: u32) {
   let bt = utils::backtrace();
   let string = encodings::read_raw_string(string_address);
@@ -102,98 +79,6 @@ fn addst_flag(gps: usize, string_address: usize, just: u8, space: i32, sflag: u3
   let dummy_ptr = new_cxxstring_n_chars(width, ' ' as u8);
   unsafe { original!(gps, dummy_ptr, just, space, sflag) };
   delete_cxxstring(dummy_ptr);
-}
-
-#[cfg(target_os = "windows")]
-#[static_init::dynamic]
-static mut STRING_COLLECTOR: StringCollector = Default::default();
-
-#[cfg(target_os = "windows")]
-#[derive(Debug, Default)]
-struct StringCollector {
-  last_caller: String,
-  last_coord: df::common::Coord<i32>,
-  last_sflag: u32,
-  last_color_info: df::gps::ColorInfo,
-  chars: Vec<u8>,
-}
-
-#[cfg(target_os = "windows")]
-impl StringCollector {
-  fn push(&mut self, caller: String, gps: usize, ch: u8, sflag: u32) {
-    if caller == "" && self.last_caller == "" {
-      return;
-    }
-
-    let mut coord = df::gps::read_coord(gps);
-    let color_info = df::gps::read_color_info(gps);
-    if caller == ""
-      || coord != self.last_coord
-      || caller != self.last_caller
-      || sflag != self.last_sflag
-      || color_info != self.last_color_info
-    {
-      if self.last_caller != "" && !self.chars.is_empty() {
-        df::gps::set_coord(gps, &self.last_coord);
-        df::gps::set_color_info(gps, &self.last_color_info);
-
-        let string = encodings::bytes_to_string(&self.chars);
-
-        let text = screen::Text::new(translator::TRANSLATOR.write().translate("string_collector", &string, &self.last_caller))
-          .by_gps(gps)
-          .with_sflag(self.last_sflag);
-        let width = screen::SCREEN.write().add_text(text);
-
-        for _ in 0..width {
-          unsafe { handle_addchar_flag.call(gps, ' ' as u8, 1, self.last_sflag) };
-        }
-
-        if coord == self.last_coord {
-          coord = df::gps::read_coord(gps);
-        }
-        df::gps::set_coord(gps, &coord);
-        df::gps::set_color_info(gps, &color_info);
-        self.chars.clear();
-      }
-    }
-
-    if caller == "" {
-      *self = Default::default();
-      return;
-    }
-
-    self.last_caller = caller;
-    self.last_coord = coord;
-    self.last_sflag = sflag;
-    self.last_color_info = color_info;
-    self.chars.push(ch);
-  }
-}
-
-#[cfg(target_os = "windows")]
-#[hook]
-fn addchar(gps: usize, ch: u8, advance: u8) {
-  if ch == 0 || ch == 219 || advance != 1 {
-    STRING_COLLECTOR.write().push("".into(), *df::globals::GPS, 0, 0);
-    unsafe { original!(gps, ch, advance) };
-    return;
-  }
-
-  let caller = utils::backtrace();
-  STRING_COLLECTOR.write().push(caller, gps, ch, 0);
-}
-
-#[cfg(target_os = "windows")]
-#[hook]
-fn addchar_flag(gps: usize, ch: u8, advance: i8, sflag: u32) {
-  if ch == 0 || ch == 219 {
-    STRING_COLLECTOR.write().push("".into(), *df::globals::GPS, 0, 0);
-    unsafe { original!(gps, ch, advance, sflag) };
-    return;
-  }
-
-  let caller = utils::backtrace();
-  STRING_COLLECTOR.write().push(caller, gps, ch, sflag);
 }
 
 #[hook]
@@ -268,10 +153,6 @@ fn update_tile(renderer: usize, x: i32, y: i32) {
     return;
   }
 
-  #[cfg(target_os = "windows")]
-  {
-    STRING_COLLECTOR.write().push("".into(), *df::globals::GPS, 0, 0);
-  }
   screen::SCREEN.write().render(renderer);
   screen::SCREEN.write().clear();
 }
