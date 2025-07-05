@@ -12,8 +12,8 @@
 
 仅兼容以下从官方渠道购买的豪华版 (Premium Edition, 或称之为付费版、图形版) 游戏本体：
 
-* Linux/Windows 系统 [**51.08** Steam 版](https://store.steampowered.com/app/975370/Dwarf_Fortress/)
-* Linux/Windows 系统 [**51.08** itch.io 版](https://kitfoxgames.itch.io/dwarf-fortress)
+* Linux/Windows 系统 [**51.13** Steam 版](https://store.steampowered.com/app/975370/Dwarf_Fortress/)
+* Linux/Windows 系统 [**51.13** itch.io 版](https://kitfoxgames.itch.io/dwarf-fortress)
 
 **注意事项：**
 
@@ -25,7 +25,7 @@
 ## 使用步骤
 
 1. 备份你的《矮人要塞》存档
-2. 确保你的《矮人要塞》处于受支持的 51.08 版本（对于 Steam 版，请确保测试分支选择为"无"）
+2. 确保你的《矮人要塞》处于受支持的 51.13 版本（对于 Steam 版，提示版本不匹配时在右键「属性」中的「测试版」选项里选择受支持的版本）
 3. [从这里](https://gitee.com/vizv/dfint-rust-cjk/releases)下载最新的汉化程序完整包
 4. 解压压缩包内的所有文件和文件夹到游戏根目录
 5. 正常启动游戏
