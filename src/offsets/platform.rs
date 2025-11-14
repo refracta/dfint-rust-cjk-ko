@@ -1,54 +1,28 @@
-use crate::{utils, version::VERSION};
+use std::fs;
+
+use crate::utils;
+
+#[cfg(target_os = "linux")]
+pub const PATH_EXE: &'static str = "./dwarfort";
+
+#[cfg(target_os = "windows")]
+pub const PATH_EXE: &'static str = "./Dwarf Fortress.exe";
 
 #[static_init::dynamic]
 pub static PLATFORM: String = {
   let os = std::env::consts::OS;
-  let mut err_details = vec![format!("系统：{os}")];
 
-  let mut checksum_opt: Option<u32> = None;
-  if let Some(checksums) = super::checksums::CHECKSUMS.get(os) {
-    #[cfg(target_os = "linux")]
-    {
-      const PATH_EXE: &'static str = "./dwarfort";
-      let mut crc = checksum::crc::Crc::new(&PATH_EXE);
-      match crc.checksum() {
-        Ok(checksum) => checksum_opt = Some(checksum.crc32),
-        Err(e) => {
-          err_details.push(format!("校验和错误：{:?}", e));
-        }
-      }
+  let mut platform = "itch";
+  if let Ok(content) = fs::read(PATH_EXE) {
+    let target = "SteamAPI".as_bytes();
+    if content.windows(target.len()).any(|window| window == target) {
+      platform = "steam";
     }
-
-    #[cfg(target_os = "windows")]
-    {
-      use exe::{VecPE, PE};
-      use std::path::Path;
-      const PATH_EXE: &'static str = "./Dwarf Fortress.exe";
-      match VecPE::from_disk_file(Path::new(&PATH_EXE)) {
-        Ok(pefile) => match pefile.get_nt_headers_64() {
-          Ok(nt_headers) => {
-            checksum_opt = Some(nt_headers.file_header.time_date_stamp);
-          }
-          Err(e) => {
-            err_details.push(format!("读取可执行文件头部信息出错：{:?}", e));
-          }
-        },
-        Err(e) => {
-          err_details.push(format!("读取可执行文件出错：{:?}", e));
-        }
-      }
-    }
-
-    if let Some(checksum) = checksum_opt {
-      err_details.push(format!("校验和：0x{checksum:x}"));
-
-      if let Some(platform) = checksums.get(&checksum) {
-        return format!("{os}-{platform}");
-      }
-    }
+  } else {
+    const message: &str = "无法读取可执行文件以检测平台";
+    utils::show_error_dialog(&message);
+    panic!("{}", message);
   }
 
-  let message = format!("不支持的版本（仅支持 {}）！{}", VERSION, err_details.join("，"));
-  utils::show_error_dialog(&message);
-  panic!("{}", message);
+  return format!("{}-{}", os, platform);
 };

@@ -40,7 +40,7 @@ impl Translator {
     if string.starts_with("FPS: ") {
       return (string, 0);
     }
-    if string != VERSION && string.chars().find(|ch| ch.is_alphabetic()).is_none() {
+    if string != VERSION.as_str() && string.chars().find(|ch| ch.is_alphabetic()).is_none() {
       return (string, 0);
     }
 

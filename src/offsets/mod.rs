@@ -1,6 +1,5 @@
 mod types;
 
-mod checksums;
 mod platform;
 pub use platform::*;
 

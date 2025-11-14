@@ -1,8 +1,5 @@
 use std::collections::BTreeMap;
 
-mod checksums;
-pub use checksums::*;
-
 mod os_specific_offsets;
 pub use os_specific_offsets::*;
 
