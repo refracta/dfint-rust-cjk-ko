@@ -1,16 +1,11 @@
 use std::collections::HashMap;
 use std::hash::{DefaultHasher, Hash, Hasher};
 
-use crate::utils;
 use crate::version::VERSION;
 
 mod data;
 mod lookup;
 mod wrapper;
-
-mod context;
-mod interface;
-mod version;
 
 mod default;
 
@@ -18,7 +13,6 @@ mod default;
 struct StringWithContext<'a> {
   pub func: &'static str,
   pub bt: &'a str,
-  pub view_opt: Option<&'a str>,
   pub string: &'a str,
 }
 
@@ -50,27 +44,14 @@ impl Translator {
       return (string, 0);
     }
 
-    let view_opt = utils::get_view();
-    let view_opt = view_opt.as_deref();
-    let key = StringWithContext {
-      func,
-      bt,
-      view_opt,
-      string,
-    }
-    .key();
+    let key = StringWithContext { func, bt, string }.key();
 
     let mut is_legacy = false;
     if !self.cache.contains_key(&key) {
       log::debug!("### {string:?}");
 
-      let location_opt = context::get_context_location(view_opt, bt);
       let lower_string = &string.to_lowercase();
-      let (text, horizontal_shift) = if let Some(translated) = version::translate_version(view_opt, string) {
-        (translated, 0)
-      } else if let Some(translation_tuple) = interface::translate_interface(view_opt, location_opt, string) {
-        translation_tuple
-      } else if let Some(translated) = data::HELP.get(string) {
+      let (text, horizontal_shift) = if let Some(translated) = data::HELP.get(string) {
         (translated.to_owned(), 0)
       } else if let Some(translated) = default::get(string) {
         (translated, 0)
@@ -93,16 +74,12 @@ impl Translator {
       };
 
       if string == &text {
-        log::debug!("missing translation for {func}:\n{view_opt:?}/{location_opt:?} @ {bt}:\n{string:?}\n");
+        log::debug!("missing translation for {func}:\n{bt}:\n{string:?}\n");
       } else {
         if is_legacy {
-          log::warn!(
-            "use legacy translation for {func}:\n{view_opt:?}/{location_opt:?} @ {bt}:\n- {string:?}\n+ {text:?}\n"
-          );
+          log::warn!("use legacy translation for {func}:\n{bt}:\n- {string:?}\n+ {text:?}\n");
         } else {
-          log::trace!(
-            "found translation for {func}:\n{view_opt:?}/{location_opt:?} @ {bt}:\n- {string:?}\n+ {text:?}\n"
-          );
+          log::trace!("found translation for {func}:\n{bt}:\n- {string:?}\n+ {text:?}\n");
         }
       }
       self.cache.insert(key, TranslatedText { text, horizontal_shift });

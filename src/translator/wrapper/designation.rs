@@ -19,7 +19,7 @@ static DESIGNATION_PREFIX_REGEX: Regex = Regex::new(&format!("^({C_NOT_OWNER})?(
 #[static_init::dynamic]
 static DESIGNATION_SUFFIX_REGEX: Regex = Regex::new(&format!("({C_QUALITY})?({CR_MAGIC})?(?:({CR_DECOR})({C_QUALITY})?)?({CR_UNCLAIM})?({CR_OFF_SITE})?({S_WEAR})?({C_ON_FIRE})?({C_NOT_OWNER})?$")).unwrap();
 
-pub fn unwrap_designation(remaining: &str) -> super::wrapper::UnwrapResult {
+pub fn unwrap_designation(remaining: &str) -> super::wrapper::UnwrapResult<'_> {
   let mut prefix_len = 0;
   let mut suffix_len = 0;
 

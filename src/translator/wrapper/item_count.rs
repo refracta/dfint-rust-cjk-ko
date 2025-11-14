@@ -3,7 +3,7 @@ use regex::Regex;
 #[static_init::dynamic]
 static COUNT_SUFFIX_REGEX: Regex = Regex::new(r" \[\d+\]$").unwrap();
 
-pub fn unwrap_item_count(remaining: &str) -> super::wrapper::UnwrapResult {
+pub fn unwrap_item_count(remaining: &str) -> super::wrapper::UnwrapResult<'_> {
   let mut suffix_len = 0;
 
   if let Some(count_match) = COUNT_SUFFIX_REGEX.find(remaining) {
