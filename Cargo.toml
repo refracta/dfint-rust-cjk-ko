@@ -12,20 +12,20 @@ crate-type = ["cdylib"]
 macro = { path = "src/macro" }
 raw = { path = "src/raw" }
 
-retour = { version = "0.3.1", features = ["static-detour"] }
-log = "0.4.27"
+retour = { version = "0.4.0-alpha.4", features = ["static-detour"] }
+log = "0.4.28"
 simple-logging = "2.0.2"
-regex = "1.11.1"
-backtrace = "0.3.75"
-serde = { version = "1.0.219", features = ["derive"] }
+regex = "1.12.2"
+backtrace = "0.3.76"
+serde = { version = "1.0.228", features = ["derive"] }
 static_init = "1.0.4"
-anyhow = "1.0.98"
-device_query = "4.0.0"
-sdl2 = "0.37.0"
+anyhow = "1.0.100"
+device_query = "4.0.1"
+sdl2 = "0.38.0"
 fontdue = "0.9.3"
-bitflags = "2.9.1"
-csv = "1.3.1"
-indexmap = "2.10.0"
+bitflags = "2.10.0"
+csv = "1.4.0"
+indexmap = "2.12.0"
 
 [target.'cfg(target_os = "windows")'.dependencies]
 exe = "0.5.6"
