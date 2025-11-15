@@ -1,18 +1,9 @@
-#[cfg(target_os = "windows")]
-use std::ptr;
-
 use crate::offsets;
 
-use super::{common, enums};
+use super::{common};
 
 pub fn read_coord(addr: usize) -> common::Coord<i32> {
   common::Coord::read(addr + offsets::FIELDS.get("gps.screenx").unwrap())
-}
-
-#[cfg(target_os = "windows")]
-pub fn set_coord(addr: usize, coord: &common::Coord<i32>) {
-  let p: *mut common::Coord<i32> = (addr + offsets::FIELDS.get("gps.screenx").unwrap()) as *mut common::Coord<i32>;
-  unsafe { ptr::copy_nonoverlapping(coord, p, 1) };
 }
 
 pub fn borrow_dim(addr: usize) -> &'static common::Dimension<i32> {
@@ -36,17 +27,6 @@ pub struct ColorInfo {
 
 pub fn borrow_color_info(addr: usize) -> &'static ColorInfo {
   raw::as_ref(addr + offsets::FIELDS.get("gps.screenf").unwrap())
-}
-
-#[cfg(target_os = "windows")]
-pub fn read_color_info(addr: usize) -> ColorInfo {
-  raw::read(addr + offsets::FIELDS.get("gps.screenf").unwrap())
-}
-
-#[cfg(target_os = "windows")]
-pub fn set_color_info(addr: usize, color_info: &ColorInfo) {
-  let p = (addr + offsets::FIELDS.get("gps.screenf").unwrap()) as *mut ColorInfo;
-  unsafe { ptr::copy_nonoverlapping(color_info, p, 1) };
 }
 
 pub fn read_colors(addr: usize) -> (common::Color, common::Color) {
@@ -78,10 +58,6 @@ pub fn read_colors(addr: usize) -> (common::Color, common::Color) {
   };
 
   colors
-}
-
-pub fn get_uccolor(addr: usize, color: enums::CursesColor) -> common::Color {
-  common::Color::read(addr + offsets::FIELDS.get("gps.uccolor").unwrap() + 3 * color as usize)
 }
 
 pub fn top_in_use(addr: usize) -> bool {

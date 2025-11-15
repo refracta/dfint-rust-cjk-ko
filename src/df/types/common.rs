@@ -34,25 +34,3 @@ impl Color {
     Self { r, g, b }
   }
 }
-
-#[repr(C)]
-#[derive(Debug)]
-pub struct Vector {
-  pub begin: usize,
-  pub end: usize,
-  pub capacity: usize,
-}
-
-impl Vector {
-  pub fn first_address(&self) -> Option<usize> {
-    if self.begin == 0 || self.begin == self.end {
-      None
-    } else {
-      Some(unsafe { *(self.begin as *const usize) })
-    }
-  }
-
-  pub fn first_mut<T>(&self) -> Option<&'static mut T> {
-    self.first_address().map(|addr| unsafe { &mut *(addr as *mut T) })
-  }
-}

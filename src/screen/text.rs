@@ -43,12 +43,6 @@ impl Text {
     self.by_coord(coord)
   }
 
-  pub fn with_offset(mut self, offset_x: i32, offset_y: i32) -> Self {
-    self.coord.x += offset_x;
-    self.coord.y += offset_y;
-    self
-  }
-
   pub fn with_sflag(mut self, sflag: u32) -> Self {
     let flag = df::flags::ScreenTexPosFlag::from_bits_retain(sflag);
 
@@ -60,11 +54,6 @@ impl Text {
       self.coord.y -= constants::CANVAS_FONT_HEIGHT / 2
     }
 
-    self
-  }
-
-  pub fn with_fg_color(mut self, color: df::common::Color) -> Self {
-    self.data = self.data.with_fg_color(color);
     self
   }
 }

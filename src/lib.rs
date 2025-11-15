@@ -7,7 +7,6 @@ mod df;
 mod encodings;
 mod font;
 mod hooks;
-mod markup;
 mod offsets;
 mod screen;
 mod translator;

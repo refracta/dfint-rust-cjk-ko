@@ -2,7 +2,7 @@ use anyhow::Result;
 use raw::{delete_cxxstring, new_cxxstring_n_chars};
 use retour::static_detour;
 
-use super::{df, encodings, markup, offsets, screen, translator, utils};
+use super::{df, encodings, offsets, screen, translator, utils};
 
 use r#macro::hook;
 
@@ -13,9 +13,6 @@ pub unsafe fn attach_all() -> Result<()> {
   attach_gps_allocate()?;
   attach_update_all()?;
   attach_update_tile()?;
-  attach_mtb_process_string_to_lines()?;
-  attach_mtb_set_width()?;
-  attach_render_help_dialog()?;
   attach_draw_horizontal_nineslice()?;
   attach_draw_nineslice()?;
 
@@ -29,9 +26,6 @@ pub unsafe fn enable_all() -> Result<()> {
   enable_gps_allocate()?;
   enable_update_all()?;
   enable_update_tile()?;
-  // always enable mtb_process_string_to_lines:
-  enable_mtb_set_width()?;
-  enable_render_help_dialog()?;
   enable_draw_horizontal_nineslice()?;
   enable_draw_nineslice()?;
 
@@ -45,9 +39,6 @@ pub unsafe fn disable_all() -> Result<()> {
   disable_gps_allocate()?;
   disable_update_all()?;
   disable_update_tile()?;
-  // always enable mtb_process_string_to_lines:
-  disable_mtb_set_width()?;
-  disable_render_help_dialog()?;
   disable_draw_horizontal_nineslice()?;
   disable_draw_nineslice()?;
 
@@ -85,19 +76,6 @@ fn addst_flag(gps: usize, string_address: usize, just: u8, space: i32, sflag: u3
 fn top_addst(gps: usize, string_address: usize, just: u8, space: i32) {
   let bt = utils::backtrace();
   let string = encodings::read_raw_string(string_address);
-
-  // in order to get the correct coord for help markup text,
-  // we need to render it here and skip the content from original text.
-  let help = df::game::GameMainInterfaceHelp::borrow(*df::globals::GAME);
-  for text in &help.text {
-    if let Some(word) = text.word.first_address() {
-      // if we're rendering a help text - rendering its first word
-      if string_address == word.to_owned() {
-        markup::MARKUP.write().render(gps, raw::ptr(text));
-        return;
-      }
-    }
-  }
 
   let text = screen::Text::new(translator::TRANSLATOR.write().translate("top_addst", &string, &bt)).by_gps(gps);
   let width = screen::SCREEN_TOP.write().add_text(text);
@@ -155,69 +133,4 @@ fn update_tile(renderer: usize, x: i32, y: i32) {
 
   screen::SCREEN.write().render(renderer);
   screen::SCREEN.write().clear();
-}
-
-#[hook]
-fn mtb_process_string_to_lines(text: usize, string_address: usize) {
-  let bt = utils::backtrace();
-  let string = encodings::read_raw_string(string_address);
-
-  unsafe { original!(text, string_address) };
-
-  // TODO: may need regexp for some scenarios like world generation status (0x22fa459)
-  // TODO: log unknown text (during world generation)
-  // examples: (they are coming from "data/vanilla/vanilla_buildings/objects/building_custom.txt")
-  // * 0x7ffda475bbb8 Use tallow (rendered fat) or oil here with lye to make soap. 24
-  // * 0x7ffda4663918 A useful workshop for pressing liquids from various sources. Some plants might need to be milled first before they can be used.  Empty jugs are required to store the liquid products. 24
-
-  markup::MARKUP.write().add(text, translator::TRANSLATOR.write().translate("addst", &string, &bt).0);
-}
-
-#[hook]
-fn mtb_set_width(text_address: usize, current_width: i32) {
-  let max_y = markup::MARKUP.write().layout(text_address, current_width);
-
-  // skip original function for help texts
-  let help = df::game::GameMainInterfaceHelp::borrow_mut(*df::globals::GAME);
-  for text in &mut help.text {
-    // if we're rendering a help text
-    if text as *const df::game::MarkupTextBox as usize == text_address {
-      // adjust the px and py to 0 (was -1 before original function call),
-      // this helps the screen coord is correct for top_addst.
-      if let Some(word) = text.word.first_mut::<df::game::MarkupTextWord>() {
-        word.px = 0;
-        word.py = 0;
-      }
-
-      // set to 0 to ensure mtb_set_width is called in every loop
-      text.current_width = 0;
-      // use the max_y from markup layout
-      text.max_y = max_y;
-
-      return;
-    }
-  }
-
-  unsafe { original!(text_address, current_width) };
-}
-
-#[hook]
-fn render_help_dialog(help_address: usize) {
-  let help = raw::as_ref_mut::<df::game::GameMainInterfaceHelp>(help_address);
-
-  // save end offset of word vector of each text,
-  // and leave only one word in the vector to get screen coord for top_addst.
-  let mut stored_end = [0; 20];
-  for (i, text) in &mut help.text.iter_mut().enumerate() {
-    stored_end[i] = text.word.end;
-    text.word.end = text.word.begin + 8;
-  }
-
-  unsafe { original!(help_address) };
-
-  // restore saved end offset of word vector of each text,
-  // so the translation can be disabled at any point.
-  for (i, text) in &mut help.text.iter_mut().enumerate() {
-    text.word.end = stored_end[i];
-  }
 }
