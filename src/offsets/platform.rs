@@ -14,7 +14,7 @@ pub static PLATFORM: String = {
 
   let mut platform = "itch";
   if let Ok(content) = fs::read(PATH_EXE) {
-    let target = "SteamAPI".as_bytes();
+    let target = "SteamAPI_Init".as_bytes();
     if content.windows(target.len()).any(|window| window == target) {
       platform = "steam";
     }
