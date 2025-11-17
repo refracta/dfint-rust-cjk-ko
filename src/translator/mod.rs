@@ -1,7 +1,7 @@
 use std::collections::HashMap;
 use std::hash::{DefaultHasher, Hash, Hasher};
 
-use crate::version::VERSION;
+use crate::offsets::VERSION;
 
 mod data;
 mod lookup;

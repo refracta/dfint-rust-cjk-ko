@@ -11,7 +11,6 @@ mod offsets;
 mod screen;
 mod translator;
 mod utils;
-mod version;
 mod watchdog;
 
 use crate::config::CONFIG;
