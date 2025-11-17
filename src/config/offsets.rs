@@ -1,7 +1,9 @@
-use anyhow::{Ok, Result};
+use anyhow::{anyhow, Ok, Result};
 use std::io::Read;
 
-#[derive(Default)]
+use crate::utils;
+
+#[derive(Default, Debug)]
 pub struct Offsets {
   // Windows search patterns
   #[cfg(target_os = "windows")]
@@ -56,7 +58,7 @@ impl Offsets {
     let mut contents: Vec<u8> = Vec::new();
     file.read_to_end(&mut contents)?;
 
-    for cap in regex::bytes::Regex::new(r"\[([^\]:]+):([^\]]+)\]")?.captures_iter(&contents) {
+    for cap in regex::bytes::Regex::new(r"\[([^\]]+):([^\]:]+)\]")?.captures_iter(&contents) {
       let key = String::from_utf8_lossy(&cap[1]).into_owned();
       let value = String::from_utf8_lossy(&cap[2]).into_owned();
 
@@ -71,16 +73,14 @@ impl Offsets {
           "PATTERN:GPS_ALLOCATE" => offsets.gps_allocate_pattern = value,
           "PATTERN:UPDATE_ALL" => offsets.update_all_pattern = value,
           "PATTERN:UPDATE_TILE" => offsets.update_tile_pattern = value,
-          "OFFSET:ENABLER:TEXTURES:WINDOWS" => offsets.enabler_textures_offset = usize::from_str_radix(&value, 16)?,
-          "OFFSET:RENDERER:DSL_RENDERER:WINDOWS" => {
-            offsets.renderer_dsl_renderer_offset = usize::from_str_radix(&value, 16)?
-          }
-          "OFFSET:RENDERER:DISPX_Z:WINDOWS" => offsets.renderer_dispx_z_offset = usize::from_str_radix(&value, 16)?,
-          "OFFSET:GPS:SCREENX:WINDOWS" => offsets.gps_screenx_offset = usize::from_str_radix(&value, 16)?,
-          "OFFSET:GPS:SCREENF:WINDOWS" => offsets.gps_screenf_offset = usize::from_str_radix(&value, 16)?,
-          "OFFSET:GPS:UCCOLOR:WINDOWS" => offsets.gps_uccolor_offset = usize::from_str_radix(&value, 16)?,
-          "OFFSET:GPS:TOP_IN_USE:WINDOWS" => offsets.gps_top_in_use_offset = usize::from_str_radix(&value, 16)?,
-          "OFFSET:GPS:DIMX:WINDOWS" => offsets.gps_dimx_offset = usize::from_str_radix(&value, 16)?,
+          "OFFSET:ENABLER:TEXTURES:WINDOWS" => offsets.enabler_textures_offset = parse_hex(&value)?,
+          "OFFSET:RENDERER:DSL_RENDERER:WINDOWS" => offsets.renderer_dsl_renderer_offset = parse_hex(&value)?,
+          "OFFSET:RENDERER:DISPX_Z:WINDOWS" => offsets.renderer_dispx_z_offset = parse_hex(&value)?,
+          "OFFSET:GPS:SCREENX:WINDOWS" => offsets.gps_screenx_offset = parse_hex(&value)?,
+          "OFFSET:GPS:SCREENF:WINDOWS" => offsets.gps_screenf_offset = parse_hex(&value)?,
+          "OFFSET:GPS:UCCOLOR:WINDOWS" => offsets.gps_uccolor_offset = parse_hex(&value)?,
+          "OFFSET:GPS:TOP_IN_USE:WINDOWS" => offsets.gps_top_in_use_offset = parse_hex(&value)?,
+          "OFFSET:GPS:DIMX:WINDOWS" => offsets.gps_dimx_offset = parse_hex(&value)?,
           _ => {}
         }
       }
@@ -96,16 +96,14 @@ impl Offsets {
           "SYMBOL:GPS_ALLOCATE" => offsets.gps_allocate_symbol = value,
           "SYMBOL:UPDATE_ALL" => offsets.update_all_symbol = value,
           "SYMBOL:UPDATE_TILE" => offsets.update_tile_symbol = value,
-          "OFFSET:ENABLER:TEXTURES:LINUX" => offsets.enabler_textures_offset = usize::from_str_radix(&value, 16)?,
-          "OFFSET:RENDERER:DSL_RENDERER:LINUX" => {
-            offsets.renderer_dsl_renderer_offset = usize::from_str_radix(&value, 16)?
-          }
-          "OFFSET:RENDERER:DISPX_Z:LINUX" => offsets.renderer_dispx_z_offset = usize::from_str_radix(&value, 16)?,
-          "OFFSET:GPS:SCREENX:LINUX" => offsets.gps_screenx_offset = usize::from_str_radix(&value, 16)?,
-          "OFFSET:GPS:SCREENF:LINUX" => offsets.gps_screenf_offset = usize::from_str_radix(&value, 16)?,
-          "OFFSET:GPS:UCCOLOR:LINUX" => offsets.gps_uccolor_offset = usize::from_str_radix(&value, 16)?,
-          "OFFSET:GPS:TOP_IN_USE:LINUX" => offsets.gps_top_in_use_offset = usize::from_str_radix(&value, 16)?,
-          "OFFSET:GPS:DIMX:LINUX" => offsets.gps_dimx_offset = usize::from_str_radix(&value, 16)?,
+          "OFFSET:ENABLER:TEXTURES:LINUX" => offsets.enabler_textures_offset = parse_hex(&value)?,
+          "OFFSET:RENDERER:DSL_RENDERER:LINUX" => offsets.renderer_dsl_renderer_offset = parse_hex(&value)?,
+          "OFFSET:RENDERER:DISPX_Z:LINUX" => offsets.renderer_dispx_z_offset = parse_hex(&value)?,
+          "OFFSET:GPS:SCREENX:LINUX" => offsets.gps_screenx_offset = parse_hex(&value)?,
+          "OFFSET:GPS:SCREENF:LINUX" => offsets.gps_screenf_offset = parse_hex(&value)?,
+          "OFFSET:GPS:UCCOLOR:LINUX" => offsets.gps_uccolor_offset = parse_hex(&value)?,
+          "OFFSET:GPS:TOP_IN_USE:LINUX" => offsets.gps_top_in_use_offset = parse_hex(&value)?,
+          "OFFSET:GPS:DIMX:LINUX" => offsets.gps_dimx_offset = parse_hex(&value)?,
           _ => {}
         }
       }
@@ -113,4 +111,8 @@ impl Offsets {
 
     Ok(offsets)
   }
+}
+
+fn parse_hex(value: &str) -> Result<usize> {
+  utils::parse_hex_as_usize(&value).ok_or(anyhow!("无法解析偏移量：{}", value))
 }

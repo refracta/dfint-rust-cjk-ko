@@ -34,6 +34,8 @@ extern "C" fn attach() {
     }
   };
   watchdog::install();
+
+  log::info!("{:#?}", CONFIG.offsets);
 }
 
 #[static_init::destructor]
