@@ -2,6 +2,7 @@ use anyhow::Result;
 
 use crate::utils;
 
+use super::offsets;
 use super::settings;
 
 #[static_init::dynamic]
@@ -9,6 +10,7 @@ pub static CONFIG: Config = Config::new();
 
 pub struct Config {
   pub settings: settings::Settings,
+  pub offsets: offsets::Offsets,
   pub version: &'static str,
 }
 
@@ -26,11 +28,16 @@ impl Config {
 
   pub fn load() -> Result<Self> {
     let settings = settings::Settings::load()?;
+    let offsets = offsets::Offsets::load()?;
     let version = match option_env!("HOOK_VERSION") {
       Some(version) => version,
       None => "内部版本",
     };
 
-    Ok(Self { settings, version })
+    Ok(Self {
+      settings,
+      offsets,
+      version,
+    })
   }
 }
