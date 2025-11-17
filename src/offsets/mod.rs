@@ -12,4 +12,7 @@ pub use globals::*;
 mod fields;
 pub use fields::*;
 
-mod search;
+mod game;
+
+#[static_init::dynamic]
+pub static GAME: game::Game = game::Game::new(&PATH_EXE).unwrap();

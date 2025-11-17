@@ -1,21 +1,18 @@
-use crate::utils;
-
 use super::types;
+use super::GAME;
 
 #[static_init::dynamic]
 pub static FUNCTIONS: types::ModuleOffsets = {
   let mut ret = types::ModuleOffsets::default();
-  utils::load_csv(
-    utils::offsets_path("functions.csv"),
-    |platform_offsets: types::PlatformSpecificOffsets| {
-      let (name, module_offset) = platform_offsets.pair();
-      if module_offset == "-" {
-        return;
-      }
 
-      let (module, offset) = module_offset.split_once(":").unwrap();
-      ret.insert(name, (module.to_owned(), utils::parse_hex_as_usize(offset).unwrap()));
-    },
-  );
+  #[cfg(target_os = "windows")]
+  let module = "self".to_owned();
+  #[cfg(target_os = "linux")]
+  let module = "libg_src_lib.so".to_owned();
+
+  for (name, offset) in GAME.functions() {
+    ret.insert(name.to_owned(), (module.clone(), *offset));
+  }
+
   ret
 };
