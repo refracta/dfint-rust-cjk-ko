@@ -1,6 +1,6 @@
 use std::collections::HashMap;
 use std::ffi::CStr;
-use std::{fs, path::Path};
+use std::fs;
 
 use anyhow::{anyhow, Result};
 
@@ -25,6 +25,7 @@ const OS_WINDOWS: &str = "windows";
 const OS_LINUX: &str = "linux";
 
 pub struct Game {
+  #[allow(unused)]
   path: String,
   data: Vec<u8>,
   version: String,
@@ -96,8 +97,9 @@ impl Game {
         for (symbol_address, global_address) in globals_addresses {
           #[cfg(target_os = "windows")]
           let (symbol_address, global_address) = {
-            let symbol_address =
-              pe.address_to_offset(symbol_address - 0x140000000).ok_or(anyhow!("Failed to locate global symbol"))?;
+            let symbol_address = pe
+              .address_to_offset((symbol_address - 0x140000000) as u32)
+              .ok_or(anyhow!("Failed to locate global symbol"))?;
             (symbol_address, global_address - 0x140000000)
           };
 
@@ -128,7 +130,7 @@ impl Game {
       {
         let result =
           pe.offset_to_address(results[0]).ok_or(anyhow!("Failed to convert file offset to virtual address"))?;
-        game.functions.insert(key.clone(), result);
+        game.functions.insert(key.clone(), result as usize);
       }
     }
 
@@ -209,7 +211,7 @@ impl Game {
     symbols_map.insert(CONFIG.offsets.update_all_symbol.as_str(), "update_all");
     symbols_map.insert(CONFIG.offsets.update_tile_symbol.as_str(), "update_tile");
 
-    let path = Path::new(&self.path).parent().unwrap().join("libg_src_lib.so");
+    let path = fs::path::Path::new(&self.path).parent().unwrap().join("libg_src_lib.so");
     let data = fs::read(path)?;
     let elf = ElfFile::new(&data)?;
     self.functions = elf.function_offsets(symbols_map)?;

@@ -1,6 +1,5 @@
 #![allow(non_upper_case_globals)]
 #![allow(non_camel_case_types)]
-#![feature(vec_into_raw_parts)]
 
 mod config;
 mod df;
