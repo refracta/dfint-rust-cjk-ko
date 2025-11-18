@@ -1,6 +1,5 @@
 #![allow(non_upper_case_globals)]
 #![allow(non_camel_case_types)]
-#![feature(vec_into_raw_parts)]
 
 mod config;
 mod df;
@@ -11,7 +10,6 @@ mod offsets;
 mod screen;
 mod translator;
 mod utils;
-mod version;
 mod watchdog;
 
 use crate::config::CONFIG;
@@ -34,6 +32,8 @@ extern "C" fn attach() {
     }
   };
   watchdog::install();
+
+  log::info!("{:#?}", offsets::FIELDS.clone());
 }
 
 #[static_init::destructor]

@@ -1,12 +1,13 @@
 use std::collections::HashMap;
 use std::hash::{DefaultHasher, Hash, Hasher};
 
-use crate::version::VERSION;
+use crate::offsets::VERSION;
 
 mod data;
 mod lookup;
 mod wrapper;
 
+mod version;
 mod default;
 
 #[derive(Debug, Clone, PartialEq, Eq, Hash)]
@@ -51,7 +52,10 @@ impl Translator {
       log::debug!("### {string:?}");
 
       let lower_string = &string.to_lowercase();
-      let (text, horizontal_shift) = if let Some(translated) = default::get(string) {
+
+      let (text, horizontal_shift) = if let Some(translated) = version::translate_version(string) {
+        (translated, 0)
+      } else if let Some(translated) = default::get(string) {
         (translated, 0)
       } else if let Some(translated) = data::LEGACY.get(lower_string) {
         is_legacy = true;
