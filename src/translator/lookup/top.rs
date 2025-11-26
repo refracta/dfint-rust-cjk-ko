@@ -34,7 +34,7 @@ pub static TOP: super::LookupTree = {
       }
     })
     .collect::<Vec<_>>();
-  lookup_csv_files.push(data_path("user_lookup.csv").to_str().unwrap().to_owned());
+  lookup_csv_files.push(data_path("user-lookup.csv").to_str().unwrap().to_owned());
 
   for file in &lookup_csv_files {
     ret.load_lookup_csv(lookups_path(file));

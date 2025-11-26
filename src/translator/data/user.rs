@@ -22,6 +22,12 @@ impl User {
 #[static_init::dynamic]
 pub static USER: User = {
   let mut ret = User::default();
+  utils::load_csv(
+    utils::data_path("simple-dictionary.csv"),
+    |Entry { text, translation }| {
+      ret.dict.insert(text.to_lowercase(), translation);
+    },
+  );
   let file = utils::data_path("user-dictionary.csv");
   if file.exists() {
     utils::load_csv(file, |Entry { text, translation }| {
