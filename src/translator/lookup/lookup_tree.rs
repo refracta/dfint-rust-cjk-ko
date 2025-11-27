@@ -1,4 +1,5 @@
 use std::collections::{BTreeMap, HashSet, VecDeque};
+use std::path::PathBuf;
 use std::{fmt::Debug, iter::once};
 
 #[derive(Debug, Default)]
@@ -182,7 +183,7 @@ impl LookupTree {
     }
   }
 
-  pub fn load_lookup_csv(&mut self, file: &str) {
+  pub fn load_lookup_csv(&mut self, file: PathBuf) {
     #[derive(serde::Deserialize)]
     struct LookupEntry {
       table: String,
@@ -190,19 +191,21 @@ impl LookupTree {
       translation: String,
     }
 
-    crate::utils::load_csv(
-      crate::utils::lookups_path(file),
-      |LookupEntry {
-         table,
-         text,
-         translation,
-       }| {
-        self.insert(table.to_owned(), text.to_owned(), translation.to_owned());
-      },
-    );
+    if file.exists() {
+      crate::utils::load_csv(
+        file,
+        |LookupEntry {
+           table,
+           text,
+           translation,
+         }| {
+          self.insert(table.to_owned(), text.to_owned(), translation.to_owned());
+        },
+      );
+    }
   }
 
-  pub fn load_dictionary_csv(&mut self, file: &str) {
+  pub fn load_dictionary_csv(&mut self, file: PathBuf) {
     #[derive(serde::Deserialize)]
     struct DictionaryEntry {
       // id: String, // TODO: unused for now
@@ -211,15 +214,17 @@ impl LookupTree {
       translation: String,
     }
 
-    crate::utils::load_csv(
-      crate::utils::dictionaries_path(file),
-      |DictionaryEntry {
-         table,
-         text,
-         translation,
-       }| {
-        self.insert(table.to_owned(), text.to_owned(), translation.to_owned());
-      },
-    );
+    if file.exists() {
+      crate::utils::load_csv(
+        file,
+        |DictionaryEntry {
+           table,
+           text,
+           translation,
+         }| {
+          self.insert(table.to_owned(), text.to_owned(), translation.to_owned());
+        },
+      );
+    }
   }
 }

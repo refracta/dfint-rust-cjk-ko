@@ -7,8 +7,8 @@ mod data;
 mod lookup;
 mod wrapper;
 
-mod version;
 mod default;
+mod version;
 
 #[derive(Debug, Clone, PartialEq, Eq, Hash)]
 struct StringWithContext<'a> {
@@ -55,6 +55,8 @@ impl Translator {
 
       let (text, horizontal_shift) = if let Some(translated) = version::translate_version(string) {
         (translated, 0)
+      } else if let Some(translated) = data::USER.get(lower_string) {
+        (translated.to_owned(), 0)
       } else if let Some(translated) = default::get(string) {
         (translated, 0)
       } else if let Some(translated) = data::LEGACY.get(lower_string) {
