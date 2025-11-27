@@ -1,5 +1,7 @@
 # dfint-rust-cjk 矮人要塞汉化程序
 
+### [点这里下载](https://df.viz.link/)最新的汉化程序完整包
+
 这是 Viz 基于上游项目 [df-steam-hook-rs](https://github.com/dfint/df-steam-hook-rs) 开发的矮人要塞汉化程序。从 [cf102ca](https://github.com/dfint/df-steam-hook-rs/commit/cf102ca1dfa1a01fbf991f52771927add7f54691) 分叉并重写了几乎所有的模块，仅使用了上游项目的 hook 框架。
 
 本项目仍处于早期开发阶段，当前版本为 **精简版**（在原来**预览版**的基础上做了精简以方便维护），可能会崩溃以及造成存档损坏、丢失！仅供学习交流。
