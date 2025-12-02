@@ -9,7 +9,7 @@ pub fn utf8_char_to_ch437_byte(ch: char) -> Option<u8> {
 }
 
 const CP437_TO_UTF8_CODE: [u32; 256] = [
-  0x0000, 0x263A, 0x263B, 0x2665, 0x2666, 0x2663, 0x2660, 0x2022, //
+  0x0020, 0x263A, 0x263B, 0x2665, 0x2666, 0x2663, 0x2660, 0x2022, //
   0x25D8, 0x25CB, 0x25D9, 0x2642, 0x2640, 0x266A, 0x266B, 0x263C, //
   0x25BA, 0x25C4, 0x2195, 0x203C, 0x00B6, 0x00A7, 0x25AC, 0x21A8, //
   0x2191, 0x2193, 0x2192, 0x2190, 0x221F, 0x2194, 0x25B2, 0x25BC, //
@@ -57,6 +57,11 @@ static CP437_TO_UTF8_BYTES: [Vec<u8>; 256] = {
 static UTF8_CHAR_TO_CP437: HashMap<char, u8> = {
   let mut map: HashMap<char, u8> = Default::default();
   for (i, &code) in CP437_TO_UTF8_CODE.iter().enumerate() {
+    // ' ' (space) should only map to 0x20, skip 0x00
+    if i == 0 {
+      continue;
+    }
+
     map.insert(char::from_u32(code).unwrap(), i as u8);
   }
   map
