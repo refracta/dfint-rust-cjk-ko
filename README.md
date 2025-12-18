@@ -58,6 +58,8 @@
 
 ## 빌드
 
+* 이전에 사용되던 방법입니다. 폴더와 파일 구조가 달라진 부분이 존재합니다. 이 섹션은 참고용으로 보존됩니다. Release 배포 파일의 구조를 확인하세요.
+
 1. [Rust 프로그래밍 언어 / 시작하기 / 설치](https://rustwiki.org/zh-CN/book/ch01-01-installation.html) 문서를 참고해 rustup 및 Rust/C++ 툴체인을 설치합니다.
 2. nightly 버전 설치: `rustup install nightly`
 3. 한국어 번역 프로그램 빌드: `cargo build --release`
