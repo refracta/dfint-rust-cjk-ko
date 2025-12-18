@@ -1,77 +1,77 @@
-# dfint-rust-cjk 矮人要塞汉化程序
+# dfint-rust-cjk 드워프 포트리스(Dwarf Fortress) 한국어 번역 프로그램
 
-### [点这里下载](https://df.viz.link/)最新的汉化程序完整包
+### [여기에서 다운로드](https://df.viz.link/) 최신 한국어 번역 프로그램 전체 패키지
 
-这是 Viz 基于上游项目 [df-steam-hook-rs](https://github.com/dfint/df-steam-hook-rs) 开发的矮人要塞汉化程序。从 [cf102ca](https://github.com/dfint/df-steam-hook-rs/commit/cf102ca1dfa1a01fbf991f52771927add7f54691) 分叉并重写了几乎所有的模块，仅使用了上游项目的 hook 框架。
+이 프로젝트는 Viz가 상위 프로젝트 [df-steam-hook-rs](https://github.com/dfint/df-steam-hook-rs)를 기반으로 개발한 드워프 포트리스 한국어 번역 프로그램입니다. [cf102ca](https://github.com/dfint/df-steam-hook-rs/commit/cf102ca1dfa1a01fbf991f52771927add7f54691)에서 포크한 뒤 거의 모든 모듈을 재작성했으며, 상위 프로젝트의 hook 프레임워크만 사용합니다.
 
-本项目仍处于早期开发阶段，当前版本为 **精简版**（在原来**预览版**的基础上做了精简以方便维护），可能会崩溃以及造成存档损坏、丢失！仅供学习交流。
+본 프로젝트는 아직 초기 개발 단계입니다. 현재 버전은 **Lite 버전**(기존 **프리뷰 버전**에서 유지보수 편의를 위해 일부를 덜어낸 버전)이며, 크래시가 발생하거나 세이브가 손상/유실될 수 있습니다! 학습 및 교류용으로만 사용하세요.
 
-* 本项目为自由软件，源码托管在 [Gitee:vizv/dfint-rust-cjk](https://gitee.com/vizv/dfint-rust-cjk)
-* 项目翻译文件托管在 [Gitee:vizv/df-translations](https://gitee.com/vizv/df-translations)
+* 본 프로젝트는 자유 소프트웨어이며 소스 코드는 [Gitee:vizv/dfint-rust-cjk](https://gitee.com/vizv/dfint-rust-cjk)에 호스팅됩니다.
+* 프로젝트 번역 파일은 [Gitee:vizv/df-translations](https://gitee.com/vizv/df-translations)에 호스팅됩니다.
 
-## 兼容版本
+## 호환 버전
 
-仅兼容以下从官方渠道购买的豪华版 (Premium Edition, 或称之为付费版、图形版) 游戏本体：
+공식 채널에서 구매한 디럭스(Premium Edition, 유료/그래픽 버전) 게임 본체 중 아래 버전만 호환됩니다.
 
-* Linux/Windows 系统 [**53.XX+** Steam 版](https://store.steampowered.com/app/975370/Dwarf_Fortress/)
-* Linux/Windows 系统 [**53.XX+** itch.io 版](https://kitfoxgames.itch.io/dwarf-fortress)
-* Linux/Windows 系统 [**53.XX+** 经典版](http://www.bay12games.com/dwarves/)
+* Linux/Windows [**53.XX+** Steam 버전](https://store.steampowered.com/app/975370/Dwarf_Fortress/)
+* Linux/Windows [**53.XX+** itch.io 버전](https://kitfoxgames.itch.io/dwarf-fortress)
+* Linux/Windows [**53.XX+** 클래식 버전](http://www.bay12games.com/dwarves/)
 
-**注意事项：**
+**주의 사항:**
 
-* [经典版](http://www.bay12games.com/dwarves/) (Classic Edition, 或称之为免费版、字符版) 虽然能兼容但不受支持，可能会显示为 itch.io 版
-* 任何修改过可执行文件的游戏版本虽然可能兼容但不受支持，由于汉化程序依赖文件中的各种内存地址偏移未来也不会支持
-* 冒险模式会有部分汉化，但是不支持，未来可能会尝试 DFHack 插件版的汉化程序来支持
-* 本汉化程序不包含游戏本体的拷贝，请自行到 [itch.io](https://kitfoxgames.itch.io/dwarf-fortress) 或 [Steam](https://store.steampowered.com/app/975370/Dwarf_Fortress/) 平台购买
+* [클래식 버전](http://www.bay12games.com/dwarves/) (Classic Edition, 무료/문자(ASCII) 버전)은 동작할 수는 있지만 지원하지 않으며, itch.io 버전으로 표시될 수도 있습니다.
+* 실행 파일을 수정한 게임 버전은 동작할 가능성은 있어도 지원하지 않습니다. 한국어 번역 프로그램은 실행 파일 내의 여러 메모리 주소 오프셋에 의존하므로, 앞으로도 지원할 계획이 없습니다.
+* 모험 모드는 일부 한국어 번역이 될 수 있으나 지원하지 않습니다. 향후 DFHack 플러그인 형태의 한국어 번역 프로그램을 시도할 수도 있습니다.
+* 이 한국어 번역 프로그램은 게임 본체를 포함하지 않습니다. [itch.io](https://kitfoxgames.itch.io/dwarf-fortress) 또는 [Steam](https://store.steampowered.com/app/975370/Dwarf_Fortress/)에서 별도로 구매하세요.
 
-## 使用步骤
+## 사용 방법
 
-1. 备份你的《矮人要塞》存档
-2. 确保你的《矮人要塞》处于受支持的 53.XX 以上版本
-3. [从这里](https://df.viz.link/)下载最新的汉化程序完整包
-4. 解压压缩包内的所有文件和文件夹到游戏根目录
-5. 正常启动游戏
-6. 游戏中可以使用 Ctrl+F2 热键对汉化进行开关操作
+1. 드워프 포트리스 세이브를 백업합니다.
+2. 드워프 포트리스 버전이 지원되는 53.XX 이상인지 확인합니다.
+3. [여기에서](https://df.viz.link/) 최신 한국어 번역 프로그램 전체 패키지를 다운로드합니다.
+4. 압축을 풀고, 안의 모든 파일/폴더를 게임 루트 디렉터리에 복사합니다.
+5. 게임을 평소대로 실행합니다.
+6. 게임 내에서 `Ctrl+F2` 단축키로 한국어 번역을 켜고/끌 수 있습니다.
 
-## 已知问题
+## 알려진 문제
 
-* 汉化程序会影响游戏性能（降低游戏帧数）
-* 仍有少数下层文本穿透到上层或与其他文本重合的情况
-* 标签宽度渲染不正确
-* 很多文本翻译缺失
-* 有些需要居中的翻译未居中对齐
-* 对于带有省略内容（以「…」结尾），暂时无法正确匹配和翻译
-* 因为默认配置下仍会启用 dfint 旧词典，会出现一些翻译不准确或零星翻译的情况
-* 含多义词的组合可能会翻译错误（常见的有 ash logs - 白蜡树原木，可能会被错误的翻译成灰烬原木；pig iron - 生铁，可能会被错误翻译成家猪铁碇）
+* 한국어 번역 프로그램은 게임 성능(프레임)을 저하시킬 수 있습니다.
+* 일부 텍스트가 겹치거나, 하위 레이어 텍스트가 상위 레이어로 비쳐 보이는 경우가 있습니다.
+* 라벨 너비 렌더링이 올바르지 않을 수 있습니다.
+* 번역이 누락된 텍스트가 많습니다.
+* 가운데 정렬이 필요한 번역이 가운데 정렬되지 않은 경우가 있습니다.
+* 생략 부호(「…」로 끝나는 텍스트)가 포함된 경우, 현재는 올바르게 매칭/번역하지 못합니다.
+* 기본 설정에서 dfint 구(舊) 사전을 활성화하기 때문에, 일부 번역이 부정확하거나 부분적으로만 번역될 수 있습니다.
+* 다의어가 포함된 조합은 오역될 수 있습니다(예: `ash logs`가 ‘물푸레나무 원목’이 아니라 ‘재(灰) 원목’으로, `pig iron`이 ‘선철’이 아니라 ‘돼지 철 주괴’로 번역되는 경우 등).
 
-## 鸣谢
+## 감사의 말
 
-* 上游项目 [df-steam-hook-rs](https://github.com/dfint/df-steam-hook-rs) 提供的 hook 框架
-* dfint 旧词典来自 [dfint](https://github.com/dfint/autobuild/blob/main/translation_build/csv/Chinese%20Simplified/dfint_dictionary.csv)
-* 新版翻译词典由[矮人要塞中文维基](https://dfzh.huijiwiki.com/)翻译人员提供
-* 字体来自 [Noto CJK](https://github.com/notofonts/noto-cjk)
-* 逆向脚本来自 [DFHack 的 df_misc 仓库](https://github.com/DFHack/df_misc)
-* DFHack 提供的 [dfhooks API chainloader](https://github.com/DFHack/dfhooks)
-* 矮人要塞吧 QQ 群、矮人要塞中文维基翻译 QQ 群、DFHack 的 Discord 频道中的各位大佬的帮助
-* **尤为感谢B站大佬 [WAN1694](https://space.bilibili.com/32828123/) 对翻译和测试的帮助！目前 50% 以上的翻译由他完成，并参与了几乎所有的测试和在发版前找到了无数 bug。**
+* 상위 프로젝트 [df-steam-hook-rs](https://github.com/dfint/df-steam-hook-rs)의 hook 프레임워크
+* dfint 구(舊) 사전: [dfint](https://github.com/dfint/autobuild/blob/main/translation_build/csv/Chinese%20Simplified/dfint_dictionary.csv)
+* 신규 번역 사전 제공: [드워프 포트리스 중국어 위키](https://dfzh.huijiwiki.com/) 번역자들
+* 폰트: [Noto CJK](https://github.com/notofonts/noto-cjk)
+* 리버스 엔지니어링 스크립트: [DFHack의 df_misc 저장소](https://github.com/DFHack/df_misc)
+* DFHack의 [dfhooks API chainloader](https://github.com/DFHack/dfhooks)
+* 각종 QQ 그룹, 위키 번역 QQ 그룹, DFHack Discord 채널 등에서 도움 주신 모든 분들
+* **특히 Bilibili의 [WAN1694](https://space.bilibili.com/32828123/)님께 번역과 테스트에 대한 큰 도움을 받았습니다. 현재 번역의 50% 이상을 담당했고, 대부분의 테스트에 참여했으며, 배포 전 수많은 버그를 찾아주었습니다.**
 
-## 许可证信息
+## 라이선스
 
-* 本汉化程序版权归 [shevernitskiy](https://github.com/shevernitskiy) 和 [Viz](https://gitee.com/vizv) 所有，同上游项目一样使用 MIT 自由软件许可证授权，见 [Gitee:vizv/dfint-rust-cjk:LICENSE](https://gitee.com/vizv/dfint-rust-cjk/blob/viz-wip/LICENSE)
-* 翻译文件版权归「[矮人要塞中文维基](https://dfzh.huijiwiki.com/)」翻译人员所有，并在 [知识共享署名-非商业性使用 4.0 国际 (CC BY-NC 4.0)](https://creativecommons.org/licenses/by-nc/4.0/deed.zh-hans) 协议下授权，见 [Gitee:vizv/df-translations:LICENSE.md](https://gitee.com/vizv/df-translations/blob/main/LICENSE.md)
-* 所用 Noto CJK 字体使用 SIL Open Font License 授权，见 [GitHub:notofonts/noto-cjk:Sans/LICENSE](https://github.com/notofonts/noto-cjk/blob/main/Sans/LICENSE)
-* 所使用的开源库见 `Cargo.toml` 和 `Cargo.lock`，其许可证见各自源码仓库中的许可证信息
+* 본 한국어 번역 프로그램의 저작권은 [shevernitskiy](https://github.com/shevernitskiy) 및 [Viz](https://gitee.com/vizv)에게 있으며, 상위 프로젝트와 동일하게 MIT 라이선스로 배포됩니다. 자세한 내용은 [Gitee:vizv/dfint-rust-cjk:LICENSE](https://gitee.com/vizv/dfint-rust-cjk/blob/viz-wip/LICENSE)를 참고하세요.
+* 번역 파일의 저작권은 「[드워프 포트리스 중국어 위키](https://dfzh.huijiwiki.com/)」 번역자들에게 있으며, [크리에이티브 커먼즈 저작자표시-비영리 4.0 국제 (CC BY-NC 4.0)](https://creativecommons.org/licenses/by-nc/4.0/deed.zh-hans)로 배포됩니다. 자세한 내용은 [Gitee:vizv/df-translations:LICENSE.md](https://gitee.com/vizv/df-translations/blob/main/LICENSE.md)를 참고하세요.
+* Noto CJK 폰트는 SIL Open Font License로 배포됩니다: [GitHub:notofonts/noto-cjk:Sans/LICENSE](https://github.com/notofonts/noto-cjk/blob/main/Sans/LICENSE)
+* 사용된 오픈소스 라이브러리는 `Cargo.toml` 및 `Cargo.lock`을 참고하세요(각 라이브러리 저장소의 라이선스 정보 포함).
 
-## 构建
+## 빌드
 
-1. 参考 [Rust 程序设计语言 / 入门指南 / 安装](https://rustwiki.org/zh-CN/book/ch01-01-installation.html) 章节完成 rustup 以及 Rust 和 C++ 工具链的安装。
-2. 安装 nightly 版本：`rustup install nightly`
-3. 构建汉化程序：`cargo build --release`
-4. 复制 `target/release` 目录下的 `libdfint_hook.so` 或 `dfint_hook.dll` 到游戏目录，并重命名为 `libdfhooks.so` 或 `dfhooks.dll`
-5. 复制 `data` 目录下的 `offsets.txt` 到游戏目录下的 `dfint-data/offsets.txt`
-6. 复制 `config.txt.example` 到游戏目录下的 `dfint-data/config.txt`
-7. 下载 [矮人要塞中文翻译词典](https://gitee.com/vizv/df-translations) 中的 `translations` 目录到 `dfint-data/translations`
-8. 下载 [Noto CJK](https://github.com/notofonts/noto-cjk) 并将 `NotoSansMonoCJKsc-Bold.otf` 字体文件移动到 `dfint-data/fonts/NotoSansMonoCJKsc-Bold.otf`
-9. 下载 [dfint 旧词典](https://github.com/dfint/autobuild/blob/main/translation_build/csv/Chinese%20Simplified/dfint_dictionary.csv) 到 `dfint-data/legacy-dictionary.csv`
+1. [Rust 프로그래밍 언어 / 시작하기 / 설치](https://rustwiki.org/zh-CN/book/ch01-01-installation.html) 문서를 참고해 rustup 및 Rust/C++ 툴체인을 설치합니다.
+2. nightly 버전 설치: `rustup install nightly`
+3. 한국어 번역 프로그램 빌드: `cargo build --release`
+4. `target/release`의 `libdfint_hook.so` 또는 `dfint_hook.dll`을 게임 디렉터리에 복사한 뒤, `libdfhooks.so` 또는 `dfhooks.dll`로 이름을 바꿉니다.
+5. `data/offsets.txt`를 게임 디렉터리의 `dfint-data/offsets.txt`로 복사합니다.
+6. `config.txt.example`을 게임 디렉터리의 `dfint-data/config.txt`로 복사합니다.
+7. [드워프 포트리스 중국어 번역 사전](https://gitee.com/vizv/df-translations)의 `translations` 디렉터리를 `dfint-data/translations`로 다운로드합니다.
+8. [Noto CJK](https://github.com/notofonts/noto-cjk)를 다운로드하고 `NotoSansMonoCJKsc-Bold.otf`를 `dfint-data/fonts/NotoSansMonoCJKsc-Bold.otf`로 옮깁니다.
+9. [dfint 구(舊) 사전](https://github.com/dfint/autobuild/blob/main/translation_build/csv/Chinese%20Simplified/dfint_dictionary.csv)을 `dfint-data/legacy-dictionary.csv`로 다운로드합니다.
 
-如果搞不定，那就直接从[这里](https://df.viz.link/)下一个最新版本的压缩包，然后从中解压对应文件
+만약 설정이 어렵다면, [여기에서](https://df.viz.link/) 최신 압축 패키지를 내려받아 필요한 파일을 그대로 꺼내서 사용하세요.

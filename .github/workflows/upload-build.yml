@@ -1,0 +1,180 @@
+name: upload-build
+
+on:
+  push:
+    branches:
+      - '**'
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+concurrency:
+  group: upload-build-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  build-windows:
+    runs-on: windows-2022
+    env:
+      VCPKG_DEFAULT_TRIPLET: x64-windows
+      VCPKG_ROOT: C:\vcpkg
+      VCPKGRS_DYNAMIC: "1"
+      VCPKGRS_TRIPLET: x64-windows
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Install Rust (nightly)
+        uses: dtolnay/rust-toolchain@nightly
+
+      - name: Cache Rust build
+        uses: Swatinem/rust-cache@v2
+
+      - name: Install SDL2 (vcpkg)
+        shell: pwsh
+        run: |
+          vcpkg install sdl2:x64-windows
+
+      - name: Build DLL
+        shell: pwsh
+        env:
+          OUT_DIR: dist\artifacts\windows
+          OUT_FILE: dist\artifacts\windows\dfhooks_dfint_cjk_ko.dll
+        run: |
+          ./scripts/build-windows.ps1
+
+      - name: Cache DLL for packaging job
+        uses: actions/cache/save@v4
+        with:
+          path: dist/artifacts/windows
+          key: dfint-${{ github.run_id }}-windows
+          enableCrossOsArchive: true
+
+  build-linux:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Install Rust (nightly)
+        uses: dtolnay/rust-toolchain@nightly
+
+      - name: Cache Rust build
+        uses: Swatinem/rust-cache@v2
+
+      - name: Install SDL2 headers (apt)
+        shell: bash
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y libsdl2-dev
+
+      - name: Build SO
+        shell: bash
+        env:
+          OUT_DIR: dist/artifacts/linux
+          OUT_FILE: dist/artifacts/linux/libdfhooks_dfint_cjk_ko.so
+        run: |
+          bash ./scripts/build-linux.sh
+
+      - name: Cache SO for packaging job
+        uses: actions/cache/save@v4
+        with:
+          path: dist/artifacts/linux
+          key: dfint-${{ github.run_id }}-linux
+          enableCrossOsArchive: true
+
+  package:
+    runs-on: ubuntu-latest
+    needs:
+      - build-windows
+      - build-linux
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Restore DLL from cache
+        uses: actions/cache/restore@v4
+        with:
+          path: dist/artifacts/windows
+          key: dfint-${{ github.run_id }}-windows
+          enableCrossOsArchive: true
+
+      - name: Restore SO from cache
+        uses: actions/cache/restore@v4
+        with:
+          path: dist/artifacts/linux
+          key: dfint-${{ github.run_id }}-linux
+          enableCrossOsArchive: true
+
+      - name: Build zip
+        shell: bash
+        run: |
+          DLL_PATH="$(find dist/artifacts/windows -name dfhooks_dfint_cjk_ko.dll -print -quit)"
+          SO_PATH="$(find dist/artifacts/linux -name libdfhooks_dfint_cjk_ko.so -print -quit)"
+          if [[ -z "$DLL_PATH" || ! -f "$DLL_PATH" ]]; then
+            echo "dfhooks_dfint_cjk_ko.dll not found under dist/artifacts/windows" >&2
+            exit 1
+          fi
+          if [[ -z "$SO_PATH" || ! -f "$SO_PATH" ]]; then
+            echo "libdfhooks_dfint_cjk_ko.so not found under dist/artifacts/linux" >&2
+            exit 1
+          fi
+
+          bash ./scripts/package.sh \
+            --dll "$DLL_PATH" \
+            --so "$SO_PATH" \
+            --out dist/dfint-rust-cjk-ko.zip
+
+      - name: Upload artifact (zip)
+        uses: actions/upload-artifact@v4
+        with:
+          name: dfint-rust-cjk-ko.zip
+          path: dist/dfint-rust-cjk-ko.zip
+
+  release:
+    if: github.ref == format('refs/heads/{0}', github.event.repository.default_branch)
+    runs-on: ubuntu-latest
+    needs: package
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Download artifact (zip)
+        uses: actions/download-artifact@v4
+        with:
+          name: dfint-rust-cjk-ko.zip
+          path: dist
+
+      - name: Create release (rolling)
+        shell: bash
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          ZIP_PATH="dist/dfint-rust-cjk-ko.zip"
+          if [[ ! -f "$ZIP_PATH" ]]; then
+            ZIP_PATH="$(find dist -maxdepth 3 -name dfint-rust-cjk-ko.zip -print -quit)"
+          fi
+          if [[ -z "$ZIP_PATH" || ! -f "$ZIP_PATH" ]]; then
+            echo "dfint-rust-cjk-ko.zip not found under dist/" >&2
+            exit 1
+          fi
+
+          SHORT_SHA="${GITHUB_SHA::7}"
+
+          bash scripts/release.sh upload \
+            -r "${{ github.repository }}" \
+            -n "dfint-rust-cjk-ko" \
+            -T "dfint-rust-cjk-ko (${SHORT_SHA})" \
+            -b "${{ github.sha }}" \
+            -p "$ZIP_PATH"
+
+      - name: Keep last 3 releases
+        shell: bash
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          bash scripts/release.sh delete \
+            -r "${{ github.repository }}" \
+            -n "dfint-rust-cjk-ko" \
+            -l 3

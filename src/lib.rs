@@ -19,15 +19,15 @@ use crate::config::CONFIG;
 extern "C" fn attach() {
   std::env::set_var("RUST_BACKTRACE", "1");
 
-  log::info!("dfint 版本: {}", CONFIG.version);
-  log::info!("dfint 平台: {}", *offsets::PLATFORM);
-  log::info!("字体文件: {:?}", CONFIG.settings.font_file);
+  log::info!("dfint 버전: {}", CONFIG.version);
+  log::info!("dfint 플랫폼: {}", *offsets::PLATFORM);
+  log::info!("폰트 파일: {:?}", CONFIG.settings.font_file);
 
   match unsafe { hooks::attach_all() } {
-    Ok(_) => log::debug!("汉化已启用"),
+    Ok(_) => log::debug!("한국어 번역이 활성화되었습니다"),
     Err(err) => {
       log::error!("unable to attach hooks, {:?}", err);
-      utils::show_error_dialog("无法启用汉化");
+      utils::show_error_dialog("한국어 번역을 활성화할 수 없습니다");
       return;
     }
   };
@@ -42,7 +42,7 @@ extern "C" fn detach() {
   unsafe {
     watchdog::uninstall();
     let _ = hooks::disable_all();
-    log::debug!("汉化已禁用");
+    log::debug!("한국어 번역이 비활성화되었습니다");
   }
 }
 

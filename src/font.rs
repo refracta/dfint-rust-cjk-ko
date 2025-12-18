@@ -24,7 +24,7 @@ impl Font {
       font: match Font::load(path) {
         Ok(value) => value,
         Err(message) => {
-          let message = &format!("加载字体文件失败：{message}");
+          let message = &format!("폰트 파일을 불러오지 못했습니다: {message}");
           utils::show_error_dialog(&message);
           panic!("{}", message);
         }
