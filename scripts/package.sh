@@ -85,6 +85,28 @@ need_cmd unzip
 need_cmd zip
 need_cmd zipinfo
 need_cmd awk
+need_cmd git
+
+download_file() {
+  local url="$1"
+  local out="$2"
+  local max_attempts="${3:-5}"
+  local attempt=1
+
+  while (( attempt <= max_attempts )); do
+    if curl -fsSL --connect-timeout 30 --max-time 300 -o "$out" "$url"; then
+      return 0
+    fi
+    local rc=$?
+    echo "warn: download failed ($attempt/$max_attempts, exit $rc): $url" >&2
+    rm -f "$out" || true
+    if (( attempt == max_attempts )); then
+      return "$rc"
+    fi
+    sleep $((attempt * 3))
+    attempt=$((attempt + 1))
+  done
+}
 
 rm -rf "$WORK_DIR"
 mkdir -p "$WORK_DIR/stage"
@@ -98,19 +120,25 @@ cp -f "$DLL_PATH" "$DATA_DIR/dfhooks_dfint_cjk_ko.dll"
 cp -f "$SO_PATH" "$DATA_DIR/libdfhooks_dfint_cjk_ko.so"
 
 echo "Downloading dfhooks chainloader (${DFHOOKS_VERSION})..."
-curl -fsSL -o "$DATA_DIR/dfhooks.dll" "${DFHOOKS_BASE_URL}/dfhooks.dll"
-curl -fsSL -o "$DATA_DIR/libdfhooks.so" "${DFHOOKS_BASE_URL}/libdfhooks.so"
+download_file "${DFHOOKS_BASE_URL}/dfhooks.dll" "$DATA_DIR/dfhooks.dll"
+download_file "${DFHOOKS_BASE_URL}/libdfhooks.so" "$DATA_DIR/libdfhooks.so"
 
 echo "Downloading dfint-data (${DF_TRANSLATIONS_REPO}@${DF_TRANSLATIONS_BRANCH})..."
 DF_TRANSLATIONS_ZIP_URL="${DF_TRANSLATIONS_REPO}/archive/refs/heads/${DF_TRANSLATIONS_BRANCH}.zip"
-curl -fsSL -o "$WORK_DIR/df-translations.zip" "$DF_TRANSLATIONS_ZIP_URL"
-unzip -q "$WORK_DIR/df-translations.zip" -d "$WORK_DIR"
+if download_file "$DF_TRANSLATIONS_ZIP_URL" "$WORK_DIR/df-translations.zip"; then
+  unzip -q "$WORK_DIR/df-translations.zip" -d "$WORK_DIR"
 
-SRC_DIR="$(find "$WORK_DIR" -maxdepth 1 -type d -name 'df-translations-*' -print -quit)"
-[[ -n "$SRC_DIR" ]] || die "failed to find extracted df-translations directory"
+  SRC_DIR="$(find "$WORK_DIR" -maxdepth 1 -type d -name 'df-translations-*' -print -quit)"
+  [[ -n "$SRC_DIR" ]] || die "failed to find extracted df-translations directory"
 
-mv "$SRC_DIR" "$DATA_DIR/dfint-data"
-rm -rf "$DATA_DIR/dfint-data/.git" || true
+  mv "$SRC_DIR" "$DATA_DIR/dfint-data"
+  rm -rf "$DATA_DIR/dfint-data/.git" || true
+else
+  echo "warn: failed to download archive; falling back to git clone" >&2
+  git clone --depth 1 --single-branch --branch "$DF_TRANSLATIONS_BRANCH" "$DF_TRANSLATIONS_REPO" "$WORK_DIR/df-translations"
+  rm -rf "$WORK_DIR/df-translations/.git" || true
+  mv "$WORK_DIR/df-translations" "$DATA_DIR/dfint-data"
+fi
 
 echo "Writing install.bat..."
 awk '{ sub(/\r$/, ""); printf "%s\r\n", $0 }' "$INSTALL_BAT_SRC" > "$STAGE_DIR/install.bat"
