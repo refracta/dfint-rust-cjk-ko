@@ -1,8 +1,8 @@
-# dfint-rust-cjk 드워프 포트리스(Dwarf Fortress) 한글화 프로그램
+# dfint-rust-cjk 드워프 포트리스(Dwarf Fortress) 한국어 번역 프로그램
 
-### [여기에서 다운로드](https://df.viz.link/) 최신 한글화 프로그램 전체 패키지
+### [여기에서 다운로드](https://df.viz.link/) 최신 한국어 번역 프로그램 전체 패키지
 
-이 프로젝트는 Viz가 상위 프로젝트 [df-steam-hook-rs](https://github.com/dfint/df-steam-hook-rs)를 기반으로 개발한 드워프 포트리스 한글화 프로그램입니다. [cf102ca](https://github.com/dfint/df-steam-hook-rs/commit/cf102ca1dfa1a01fbf991f52771927add7f54691)에서 포크한 뒤 거의 모든 모듈을 재작성했으며, 상위 프로젝트의 hook 프레임워크만 사용합니다.
+이 프로젝트는 Viz가 상위 프로젝트 [df-steam-hook-rs](https://github.com/dfint/df-steam-hook-rs)를 기반으로 개발한 드워프 포트리스 한국어 번역 프로그램입니다. [cf102ca](https://github.com/dfint/df-steam-hook-rs/commit/cf102ca1dfa1a01fbf991f52771927add7f54691)에서 포크한 뒤 거의 모든 모듈을 재작성했으며, 상위 프로젝트의 hook 프레임워크만 사용합니다.
 
 본 프로젝트는 아직 초기 개발 단계입니다. 현재 버전은 **Lite 버전**(기존 **프리뷰 버전**에서 유지보수 편의를 위해 일부를 덜어낸 버전)이며, 크래시가 발생하거나 세이브가 손상/유실될 수 있습니다! 학습 및 교류용으로만 사용하세요.
 
@@ -20,22 +20,22 @@
 **주의 사항:**
 
 * [클래식 버전](http://www.bay12games.com/dwarves/) (Classic Edition, 무료/문자(ASCII) 버전)은 동작할 수는 있지만 지원하지 않으며, itch.io 버전으로 표시될 수도 있습니다.
-* 실행 파일을 수정한 게임 버전은 동작할 가능성은 있어도 지원하지 않습니다. 한글화 프로그램은 실행 파일 내의 여러 메모리 주소 오프셋에 의존하므로, 앞으로도 지원할 계획이 없습니다.
-* 모험 모드는 일부 한글화가 될 수 있으나 지원하지 않습니다. 향후 DFHack 플러그인 형태의 한글화 프로그램을 시도할 수도 있습니다.
-* 이 한글화 프로그램은 게임 본체를 포함하지 않습니다. [itch.io](https://kitfoxgames.itch.io/dwarf-fortress) 또는 [Steam](https://store.steampowered.com/app/975370/Dwarf_Fortress/)에서 별도로 구매하세요.
+* 실행 파일을 수정한 게임 버전은 동작할 가능성은 있어도 지원하지 않습니다. 한국어 번역 프로그램은 실행 파일 내의 여러 메모리 주소 오프셋에 의존하므로, 앞으로도 지원할 계획이 없습니다.
+* 모험 모드는 일부 한국어 번역이 될 수 있으나 지원하지 않습니다. 향후 DFHack 플러그인 형태의 한국어 번역 프로그램을 시도할 수도 있습니다.
+* 이 한국어 번역 프로그램은 게임 본체를 포함하지 않습니다. [itch.io](https://kitfoxgames.itch.io/dwarf-fortress) 또는 [Steam](https://store.steampowered.com/app/975370/Dwarf_Fortress/)에서 별도로 구매하세요.
 
 ## 사용 방법
 
 1. 드워프 포트리스 세이브를 백업합니다.
 2. 드워프 포트리스 버전이 지원되는 53.XX 이상인지 확인합니다.
-3. [여기에서](https://df.viz.link/) 최신 한글화 프로그램 전체 패키지를 다운로드합니다.
+3. [여기에서](https://df.viz.link/) 최신 한국어 번역 프로그램 전체 패키지를 다운로드합니다.
 4. 압축을 풀고, 안의 모든 파일/폴더를 게임 루트 디렉터리에 복사합니다.
 5. 게임을 평소대로 실행합니다.
-6. 게임 내에서 `Ctrl+F2` 단축키로 한글화를 켜고/끌 수 있습니다.
+6. 게임 내에서 `Ctrl+F2` 단축키로 한국어 번역을 켜고/끌 수 있습니다.
 
 ## 알려진 문제
 
-* 한글화 프로그램은 게임 성능(프레임)을 저하시킬 수 있습니다.
+* 한국어 번역 프로그램은 게임 성능(프레임)을 저하시킬 수 있습니다.
 * 일부 텍스트가 겹치거나, 하위 레이어 텍스트가 상위 레이어로 비쳐 보이는 경우가 있습니다.
 * 라벨 너비 렌더링이 올바르지 않을 수 있습니다.
 * 번역이 누락된 텍스트가 많습니다.
@@ -57,7 +57,7 @@
 
 ## 라이선스
 
-* 본 한글화 프로그램의 저작권은 [shevernitskiy](https://github.com/shevernitskiy) 및 [Viz](https://gitee.com/vizv)에게 있으며, 상위 프로젝트와 동일하게 MIT 라이선스로 배포됩니다. 자세한 내용은 [Gitee:vizv/dfint-rust-cjk:LICENSE](https://gitee.com/vizv/dfint-rust-cjk/blob/viz-wip/LICENSE)를 참고하세요.
+* 본 한국어 번역 프로그램의 저작권은 [shevernitskiy](https://github.com/shevernitskiy) 및 [Viz](https://gitee.com/vizv)에게 있으며, 상위 프로젝트와 동일하게 MIT 라이선스로 배포됩니다. 자세한 내용은 [Gitee:vizv/dfint-rust-cjk:LICENSE](https://gitee.com/vizv/dfint-rust-cjk/blob/viz-wip/LICENSE)를 참고하세요.
 * 번역 파일의 저작권은 「[드워프 포트리스 중국어 위키](https://dfzh.huijiwiki.com/)」 번역자들에게 있으며, [크리에이티브 커먼즈 저작자표시-비영리 4.0 국제 (CC BY-NC 4.0)](https://creativecommons.org/licenses/by-nc/4.0/deed.zh-hans)로 배포됩니다. 자세한 내용은 [Gitee:vizv/df-translations:LICENSE.md](https://gitee.com/vizv/df-translations/blob/main/LICENSE.md)를 참고하세요.
 * Noto CJK 폰트는 SIL Open Font License로 배포됩니다: [GitHub:notofonts/noto-cjk:Sans/LICENSE](https://github.com/notofonts/noto-cjk/blob/main/Sans/LICENSE)
 * 사용된 오픈소스 라이브러리는 `Cargo.toml` 및 `Cargo.lock`을 참고하세요(각 라이브러리 저장소의 라이선스 정보 포함).
@@ -66,7 +66,7 @@
 
 1. [Rust 프로그래밍 언어 / 시작하기 / 설치](https://rustwiki.org/zh-CN/book/ch01-01-installation.html) 문서를 참고해 rustup 및 Rust/C++ 툴체인을 설치합니다.
 2. nightly 버전 설치: `rustup install nightly`
-3. 한글화 프로그램 빌드: `cargo build --release`
+3. 한국어 번역 프로그램 빌드: `cargo build --release`
 4. `target/release`의 `libdfint_hook.so` 또는 `dfint_hook.dll`을 게임 디렉터리에 복사한 뒤, `libdfhooks.so` 또는 `dfhooks.dll`로 이름을 바꿉니다.
 5. `data/offsets.txt`를 게임 디렉터리의 `dfint-data/offsets.txt`로 복사합니다.
 6. `config.txt.example`을 게임 디렉터리의 `dfint-data/config.txt`로 복사합니다.

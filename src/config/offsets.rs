@@ -114,5 +114,5 @@ impl Offsets {
 }
 
 fn parse_hex(value: &str) -> Result<usize> {
-  utils::parse_hex_as_usize(&value).ok_or(anyhow!("无法解析偏移量：{}", value))
+  utils::parse_hex_as_usize(&value).ok_or(anyhow!("오프셋을 해석할 수 없습니다: {}", value))
 }

@@ -39,12 +39,12 @@ impl Settings {
           "Warn" => settings.log_level = log::LevelFilter::Warn,
           "Error" => settings.log_level = log::LevelFilter::Error,
           "Off" => settings.log_level = log::LevelFilter::Off,
-          _ => return Err(anyhow!("无效的日志级别：{value:?}")),
+          _ => return Err(anyhow!("유효하지 않은 로그 레벨: {value:?}")),
         },
         "LOG_FILE" => settings.log_file = value,
         "FONT_FILE" => settings.font_file = value,
         "USE_LEGACY_DICTIONARY" => settings.use_legacy_dictionary = value.to_uppercase() == "YES",
-        _ => return Err(anyhow!("无效的配置项：{key:?}")),
+        _ => return Err(anyhow!("유효하지 않은 설정 항목: {key:?}")),
       }
     }
     simple_logging::log_to_file(&settings.log_file, settings.log_level).unwrap();

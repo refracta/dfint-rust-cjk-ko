@@ -19,7 +19,7 @@ impl Config {
     match Self::load() {
       Ok(config) => config,
       Err(message) => {
-        let message = format!("加载配置文件失败：{message}");
+        let message = format!("설정 파일을 불러오지 못했습니다: {message}");
         utils::show_error_dialog(&message);
         panic!("{}", message);
       }
@@ -31,7 +31,7 @@ impl Config {
     let offsets = offsets::Offsets::load()?;
     let version = match option_env!("HOOK_VERSION") {
       Some(version) => version,
-      None => "内部版本",
+      None => "내부 버전",
     };
 
     Ok(Self {
