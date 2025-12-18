@@ -19,6 +19,8 @@ jobs:
     env:
       VCPKG_DEFAULT_TRIPLET: x64-windows
       VCPKG_ROOT: C:\vcpkg
+      VCPKGRS_DYNAMIC: "1"
+      VCPKGRS_TRIPLET: x64-windows
     steps:
       - name: Checkout
         uses: actions/checkout@v4
