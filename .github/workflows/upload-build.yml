@@ -38,14 +38,18 @@ jobs:
 
       - name: Build DLL
         shell: pwsh
+        env:
+          OUT_DIR: dist\artifacts\windows
+          OUT_FILE: dist\artifacts\windows\dfhooks_dfint_cjk_ko.dll
         run: |
           ./scripts/build-windows.ps1
 
-      - name: Upload artifact (dll)
-        uses: actions/upload-artifact@v4
+      - name: Cache DLL for packaging job
+        uses: actions/cache/save@v4
         with:
-          name: dfhooks_dfint_cjk_ko.dll
-          path: dist/dfhooks_dfint_cjk_ko.dll
+          path: dist/artifacts/windows
+          key: dfint-${{ github.run_id }}-windows
+          enableCrossOsArchive: true
 
   build-linux:
     runs-on: ubuntu-latest
@@ -67,14 +71,18 @@ jobs:
 
       - name: Build SO
         shell: bash
+        env:
+          OUT_DIR: dist/artifacts/linux
+          OUT_FILE: dist/artifacts/linux/libdfhooks_dfint_cjk_ko.so
         run: |
           bash ./scripts/build-linux.sh
 
-      - name: Upload artifact (so)
-        uses: actions/upload-artifact@v4
+      - name: Cache SO for packaging job
+        uses: actions/cache/save@v4
         with:
-          name: libdfhooks_dfint_cjk_ko.so
-          path: dist/libdfhooks_dfint_cjk_ko.so
+          path: dist/artifacts/linux
+          key: dfint-${{ github.run_id }}-linux
+          enableCrossOsArchive: true
 
   package:
     runs-on: ubuntu-latest
@@ -85,17 +93,19 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v4
 
-      - name: Download artifact (dll)
-        uses: actions/download-artifact@v4
+      - name: Restore DLL from cache
+        uses: actions/cache/restore@v4
         with:
-          name: dfhooks_dfint_cjk_ko.dll
           path: dist/artifacts/windows
+          key: dfint-${{ github.run_id }}-windows
+          enableCrossOsArchive: true
 
-      - name: Download artifact (so)
-        uses: actions/download-artifact@v4
+      - name: Restore SO from cache
+        uses: actions/cache/restore@v4
         with:
-          name: libdfhooks_dfint_cjk_ko.so
           path: dist/artifacts/linux
+          key: dfint-${{ github.run_id }}-linux
+          enableCrossOsArchive: true
 
       - name: Build zip
         shell: bash
