@@ -11,15 +11,23 @@ pub const CJK_FONT_SIZE: u32 = 24;
 pub const BUF_SIZE: isize = (CJK_FONT_SIZE * CJK_FONT_SIZE) as isize;
 
 #[static_init::dynamic]
-pub static mut FONT: Font = Font::new(&CONFIG.settings.font_file);
+pub static mut FONT: Font = Font::new(&CONFIG.settings.font_file, CONFIG.settings.font_fallback_file.as_deref());
 
 pub struct Font {
   font: fontdue::Font,
+  fallback_font: Option<fontdue::Font>,
   cache: HashMap<char, usize>,
 }
 
 impl Font {
-  fn new(path: &'static str) -> Self {
+  fn new(path: &'static str, fallback_path: Option<&'static str>) -> Self {
+    log::info!("使用字体文件：{path}");
+    if let Some(fallback_path) = fallback_path {
+      if !fallback_path.trim().is_empty() {
+        log::info!("使用字体候补文件：{fallback_path}");
+      }
+    }
+
     Self {
       font: match Font::load(path) {
         Ok(value) => value,
@@ -29,6 +37,15 @@ impl Font {
           panic!("{}", message);
         }
       },
+      fallback_font: fallback_path
+        .filter(|path| !path.trim().is_empty())
+        .and_then(|path| match Font::load(path) {
+          Ok(value) => Some(value),
+          Err(message) => {
+            log::warn!("加载字体候补文件失败，将忽略候补字体：{message}");
+            None
+          }
+        }),
       cache: Default::default(),
     }
   }
@@ -39,35 +56,65 @@ impl Font {
     };
 
     if !self.cache.contains_key(&ch) {
-      let (metrics, bitmap) = self.font.rasterize(ch, CJK_FONT_SIZE as f32);
-      if metrics.advance_width as u32 == CJK_FONT_SIZE && metrics.advance_height as u32 == CJK_FONT_SIZE {
-        let mut surface = Surface::new(CJK_FONT_SIZE, CJK_FONT_SIZE, PixelFormatEnum::RGBA32).unwrap();
-        surface.with_lock_mut(|buffer| {
-          let dx = metrics.xmin;
-          let dy = (CJK_FONT_SIZE as i32 - metrics.height as i32) - (metrics.ymin + 3); // Note: only for the "NotoSansMonoCJKsc-Bold" font
-          let dy = if dy < 0 { 0 } else { dy };
-          for y in 0..metrics.height {
-            for x in 0..metrics.width {
-              let alpha = (bitmap[y * metrics.width + x] as u16 * 255 / 255) as u8;
-
-              let offset = ((y as i32 + dy) * CJK_FONT_SIZE as i32 + x as i32 + dx) as isize;
-              if offset < 0 || offset >= BUF_SIZE {
-                continue;
-              }
-              let offset = offset as usize;
-
-              buffer[offset * 4 + 0] = 255;
-              buffer[offset * 4 + 1] = 255;
-              buffer[offset * 4 + 2] = 255;
-              buffer[offset * 4 + 3] = alpha;
-            }
-          }
-        });
-        let surface_ptr = surface.raw() as usize;
-        mem::forget(surface);
-
-        self.cache.insert(ch, surface_ptr);
+      let (mut metrics, mut bitmap) = self.font.rasterize(ch, CJK_FONT_SIZE as f32);
+      let mut used_fallback = false;
+      if metrics.width == 0 || metrics.height == 0 || !bitmap.iter().any(|&b| b != 0) {
+        if let Some(fallback_font) = &self.fallback_font {
+          (metrics, bitmap) = fallback_font.rasterize(ch, CJK_FONT_SIZE as f32);
+          used_fallback = true;
+        }
       }
+
+      if used_fallback {
+        log::debug!(
+          "使用候补字体渲染字形：{ch:?} (U+{:04X}) adv=({:.2},{:.2}) size=({},{})",
+          ch as u32,
+          metrics.advance_width,
+          metrics.advance_height,
+          metrics.width,
+          metrics.height
+        );
+      } else if metrics.width == 0 || metrics.height == 0 || !bitmap.iter().any(|&b| b != 0) {
+        log::warn!("字体缺少字形：{ch:?} (U+{:04X})", ch as u32);
+      }
+
+      let mut surface = Surface::new(CJK_FONT_SIZE, CJK_FONT_SIZE, PixelFormatEnum::RGBA32).unwrap();
+      surface.with_lock_mut(|buffer| {
+        buffer.fill(0);
+
+        // Keep baseline aligned at `CJK_FONT_SIZE - 3` (works for NotoSansMonoCJK* fonts),
+        // and center glyphs with narrower advance width (e.g. Hangul: 22px at 24px size).
+        let advance_width = metrics.advance_width.round() as i32;
+        let center_x = (CJK_FONT_SIZE as i32 - advance_width) / 2;
+        let dx = metrics.xmin + center_x;
+
+        let dy = (CJK_FONT_SIZE as i32 - metrics.height as i32) - (metrics.ymin + 3);
+        let dy = if dy < 0 { 0 } else { dy };
+
+        for y in 0..metrics.height {
+          for x in 0..metrics.width {
+            let alpha = bitmap[y * metrics.width + x];
+            if alpha == 0 {
+              continue;
+            }
+
+            let offset = ((y as i32 + dy) * CJK_FONT_SIZE as i32 + x as i32 + dx) as isize;
+            if offset < 0 || offset >= BUF_SIZE {
+              continue;
+            }
+            let offset = offset as usize;
+
+            buffer[offset * 4 + 0] = 255;
+            buffer[offset * 4 + 1] = 255;
+            buffer[offset * 4 + 2] = 255;
+            buffer[offset * 4 + 3] = alpha;
+          }
+        }
+      });
+      let surface_ptr = surface.raw() as usize;
+      mem::forget(surface);
+
+      self.cache.insert(ch, surface_ptr);
     }
 
     if let Some(&surface_ptr) = self.cache.get(&ch) {
