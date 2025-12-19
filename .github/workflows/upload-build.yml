@@ -5,6 +5,13 @@ on:
     branches:
       - '**'
   workflow_dispatch:
+    inputs:
+      translations_ref:
+        description: df-translations ref (branch or tag)
+        required: false
+      translations_sha:
+        description: df-translations commit SHA
+        required: false
 
 permissions:
   contents: write
@@ -89,6 +96,9 @@ jobs:
     needs:
       - build-windows
       - build-linux
+    outputs:
+      translations_ref: ${{ steps.translations.outputs.ref }}
+      translations_sha: ${{ steps.translations.outputs.sha }}
     steps:
       - name: Checkout
         uses: actions/checkout@v4
@@ -107,8 +117,34 @@ jobs:
           key: dfint-${{ github.run_id }}-linux
           enableCrossOsArchive: true
 
+      - name: Resolve translations ref
+        id: translations
+        shell: bash
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          TRANSLATIONS_REPO: refracta/df-translations
+          TRANSLATIONS_REF_INPUT: ${{ github.event.inputs.translations_ref }}
+          TRANSLATIONS_SHA_INPUT: ${{ github.event.inputs.translations_sha }}
+        run: |
+          set -euo pipefail
+          ref="$TRANSLATIONS_REF_INPUT"
+          sha="$TRANSLATIONS_SHA_INPUT"
+          if [[ -z "$ref" ]]; then
+            ref="$(gh api "repos/$TRANSLATIONS_REPO" --jq '.default_branch')"
+          fi
+          if [[ -z "$sha" ]]; then
+            sha="$(gh api "repos/$TRANSLATIONS_REPO/commits/$ref" --jq '.sha')"
+          fi
+          echo "ref=$ref" >> "$GITHUB_OUTPUT"
+          echo "sha=$sha" >> "$GITHUB_OUTPUT"
+          echo "Using translations ref: $ref"
+          echo "Using translations sha: $sha"
+
       - name: Build zip
         shell: bash
+        env:
+          DF_TRANSLATIONS_BRANCH: ${{ steps.translations.outputs.ref }}
+          DF_TRANSLATIONS_SHA: ${{ steps.translations.outputs.sha }}
         run: |
           DLL_PATH="$(find dist/artifacts/windows -name dfhooks_dfint_cjk_ko.dll -print -quit)"
           SO_PATH="$(find dist/artifacts/linux -name libdfhooks_dfint_cjk_ko.so -print -quit)"
@@ -160,12 +196,14 @@ jobs:
             exit 1
           fi
 
-          SHORT_SHA="${GITHUB_SHA::7}"
+          CODE_SHA="${GITHUB_SHA::7}"
+          TRANS_SHA="${{ needs.package.outputs.translations_sha }}"
+          TRANS_SHORT="${TRANS_SHA::7}"
 
           bash scripts/release.sh upload \
             -r "${{ github.repository }}" \
             -n "dfint-rust-cjk-ko" \
-            -T "dfint-rust-cjk-ko (${SHORT_SHA})" \
+            -T "dfint-rust-cjk-ko (C: ${CODE_SHA}, T: ${TRANS_SHORT})" \
             -b "${{ github.sha }}" \
             -p "$ZIP_PATH"
 

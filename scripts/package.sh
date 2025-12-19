@@ -9,6 +9,7 @@ DFHOOKS_BASE_URL="${DFHOOKS_BASE_URL:-https://github.com/DFHack/dfhooks/releases
 
 DF_TRANSLATIONS_REPO="${DF_TRANSLATIONS_REPO:-https://github.com/refracta/df-translations}"
 DF_TRANSLATIONS_BRANCH="${DF_TRANSLATIONS_BRANCH:-dfint-rust-cjk-ko}"
+DF_TRANSLATIONS_SHA="${DF_TRANSLATIONS_SHA:-}"
 
 DLL_PATH=""
 SO_PATH=""
@@ -26,6 +27,7 @@ Env:
   DFHOOKS_BASE_URL=https://github.com/DFHack/dfhooks/releases/download/v1
   DF_TRANSLATIONS_REPO=https://github.com/refracta/df-translations
   DF_TRANSLATIONS_BRANCH=dfint-rust-cjk-ko
+  DF_TRANSLATIONS_SHA=<commit>
 EOF
 }
 
@@ -123,8 +125,12 @@ echo "Downloading dfhooks chainloader (${DFHOOKS_VERSION})..."
 download_file "${DFHOOKS_BASE_URL}/dfhooks.dll" "$DATA_DIR/dfhooks.dll"
 download_file "${DFHOOKS_BASE_URL}/libdfhooks.so" "$DATA_DIR/libdfhooks.so"
 
-echo "Downloading dfint-data (${DF_TRANSLATIONS_REPO}@${DF_TRANSLATIONS_BRANCH})..."
-DF_TRANSLATIONS_ZIP_URL="${DF_TRANSLATIONS_REPO}/archive/refs/heads/${DF_TRANSLATIONS_BRANCH}.zip"
+echo "Downloading dfint-data (${DF_TRANSLATIONS_REPO}@${DF_TRANSLATIONS_SHA:-$DF_TRANSLATIONS_BRANCH})..."
+if [[ -n "$DF_TRANSLATIONS_SHA" ]]; then
+  DF_TRANSLATIONS_ZIP_URL="${DF_TRANSLATIONS_REPO}/archive/${DF_TRANSLATIONS_SHA}.zip"
+else
+  DF_TRANSLATIONS_ZIP_URL="${DF_TRANSLATIONS_REPO}/archive/refs/heads/${DF_TRANSLATIONS_BRANCH}.zip"
+fi
 if download_file "$DF_TRANSLATIONS_ZIP_URL" "$WORK_DIR/df-translations.zip"; then
   unzip -q "$WORK_DIR/df-translations.zip" -d "$WORK_DIR"
 
@@ -136,6 +142,9 @@ if download_file "$DF_TRANSLATIONS_ZIP_URL" "$WORK_DIR/df-translations.zip"; the
 else
   echo "warn: failed to download archive; falling back to git clone" >&2
   git clone --depth 1 --single-branch --branch "$DF_TRANSLATIONS_BRANCH" "$DF_TRANSLATIONS_REPO" "$WORK_DIR/df-translations"
+  if [[ -n "$DF_TRANSLATIONS_SHA" ]]; then
+    git -C "$WORK_DIR/df-translations" checkout -q "$DF_TRANSLATIONS_SHA"
+  fi
   rm -rf "$WORK_DIR/df-translations/.git" || true
   mv "$WORK_DIR/df-translations" "$DATA_DIR/dfint-data"
 fi
