@@ -1,4 +1,4 @@
-const PREFIX: &str = "dfint-rust-cjk 오류";
+const PREFIX: &str = "dfint-rust-cjk-ko 오류";
 pub fn show_error_dialog(message: &str) {
   eprintln!("{PREFIX}: {message}");
   log::error!("{PREFIX}: {message}");
